@@ -7,7 +7,7 @@ and Phase 3 (to prioritize clarification questions).
 For each category, assess: **Clear** | **Partial** | **Missing**
 
 **Category filtering:** Not all 9 categories apply to every project.
-Skip categories that are structurally irrelevant — e.g., skip
+Skip categories that are structurally irrelevant, e.g., skip
 "Users & Roles" for single-user CLI tools, skip "Interaction Flow"
 for non-interactive content packages. Mark skipped categories as
 "N/A" rather than "Clear" to distinguish "doesn't apply" from
@@ -92,7 +92,7 @@ What happens when things go wrong?
 - Input validation errors (what's invalid? how communicated?)
 - Network/service failures (timeout, 500, offline)
 - Permission denied (unauthorized access attempts)
-- Partial failure (3 of 5 items succeed — what happens?)
+- Partial failure (3 of 5 items succeed, what happens?)
 - Retry behavior (automatic? manual? how many times?)
 - Degraded mode (can the feature work with reduced capability?)
 
@@ -172,7 +172,7 @@ Project-specific patterns from `PROJECT.md`.
 - Known domain pitfalls from the project's Lessons Learned
 - Patterns that every feature in this project must address
 
-This category has no reasonable defaults — it's entirely
+This category has no reasonable defaults, it's entirely
 project-specific. If PROJECT.md doesn't exist or has no
 domain concerns listed, skip this category.
 
@@ -183,15 +183,15 @@ domain concerns listed, skip this category.
 When multiple categories have ambiguities, promote to
 `[NEEDS CLARIFICATION]` in this priority order:
 
-1. **Scope & Boundaries** — Wrong scope = wasted implementation
-2. **Data & State** — Wrong model = expensive rework
-3. **Error Handling** — Missing error handling = production incidents
-4. **Users & Roles** — Wrong permissions = security issues
-5. **Edge Cases** — Missing edge cases = bugs found later
-6. **Integration** — Missed dependencies = broken features
-7. **Interaction Flow** — Wrong flow = poor UX
-8. **Non-Functional** — Missing NFRs = tech debt
-9. **Domain-Specific** — Context-dependent priority
+1. **Scope & Boundaries**, Wrong scope = wasted implementation
+2. **Data & State**, Wrong model = expensive rework
+3. **Error Handling**, Missing error handling = production incidents
+4. **Users & Roles**, Wrong permissions = security issues
+5. **Edge Cases**, Missing edge cases = bugs found later
+6. **Integration**, Missed dependencies = broken features
+7. **Interaction Flow**, Wrong flow = poor UX
+8. **Non-Functional**, Missing NFRs = tech debt
+9. **Domain-Specific**, Context-dependent priority
 
 Use this order when selecting which ambiguities to promote to
 `[NEEDS CLARIFICATION]` (max 5) and which to resolve with
@@ -205,10 +205,10 @@ When promoting an ambiguity to a clarification question:
 
 - **Multiple-choice format** (2-5 options) as a markdown table
 - **Always include a recommendation** with reasoning above the table
-- **Options must be mutually exclusive** — no overlapping choices
+- **Options must be mutually exclusive**, no overlapping choices
 - **Include a "Custom" row** if free-form answer makes sense
-- **One question at a time** — never reveal upcoming questions
-- **State the impact** — why this question matters for the spec
+- **One question at a time**, never reveal upcoming questions
+- **State the impact**, why this question matters for the spec
 
 Example:
 
@@ -216,7 +216,7 @@ Example:
 **Context:** The spec says "users can export data" but doesn't
 specify the format.
 
-**Recommended:** Option A — CSV is the most universally supported
+**Recommended:** Option A, CSV is the most universally supported
 format and doesn't require additional libraries.
 
 | Option | Description | Implications |

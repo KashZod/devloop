@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Structural validation for the ai-agent-dev-workflow ecosystem.
+# Structural validation for the devloop ecosystem.
 # Checks files, links, JSON, phases, agents, leaks, and cross-references.
 #
 # Usage: ./validate.sh
@@ -51,6 +51,7 @@ required_files=(
     # Agents
     "agents/review-plan.md"
     "agents/review-impl.md"
+    "agents/red-team.md"
 )
 
 for f in "${required_files[@]}"; do
@@ -381,6 +382,7 @@ core_files=(
     "skills/spec/references/validation-checklist.md"
     "agents/review-plan.md"
     "agents/review-impl.md"
+    "agents/red-team.md"
 )
 leaked_terms=("SapClient" "fetchFn" "vitest" "npx tsc" "CSRF" "Zod" "gradlew" "Hilt" "Room" "Jetpack" "AndroidManifest")
 
@@ -426,6 +428,12 @@ if grep -q "review-impl" "$implement_skill"; then
     pass "Implement SKILL.md references review-impl agent"
 else
     fail "Implement SKILL.md does not reference review-impl agent"
+fi
+
+if grep -q "red-team" "$implement_skill"; then
+    pass "Implement SKILL.md references red-team agent"
+else
+    fail "Implement SKILL.md does not reference red-team agent"
 fi
 
 # ─────────────────────────────────────────────

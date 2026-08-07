@@ -19,20 +19,20 @@ Every acceptance criterion can be converted to a test.
 **How to check:**
 - For each Given/When/Then, ask: "Can I write a test that passes
   when this works and fails when it doesn't?"
-- The test complexity hint — `(1 test)`, `(parameterized)`,
-  `(integration)` — should be present and accurate
+- The test complexity hint, `(1 test)`, `(parameterized)`,
+  `(integration)`, should be present and accurate
 - Red flags: criteria using "appropriate", "graceful", "intuitive",
   "fast" without a measurable threshold
 
 **Common misses:**
-- "System handles errors properly" — HOW? What does the user see?
-- "Performance is acceptable" — What's the threshold?
-- "UI is responsive" — At what breakpoint? What changes?
-- "Data is validated" — Which fields? What rules? What error?
+- "System handles errors properly", HOW? What does the user see?
+- "Performance is acceptable", What's the threshold?
+- "UI is responsive", At what breakpoint? What changes?
+- "Data is validated", Which fields? What rules? What error?
 
 **Self-evaluation warning:** It's tempting to say "all criteria
 are testable" without actually imagining the test. For each
-criterion, mentally construct the specific assertion — don't
+criterion, mentally construct the specific assertion, don't
 just pattern-match the Given/When/Then structure.
 
 **Adversarial check technique:** For each criterion, ask: "Could
@@ -58,9 +58,9 @@ both happy-path and error-path criteria.
 **Variant completeness:** If a story's behavior branches by N
 variants (scenarios, user roles, platforms, modes), each variant
 needs at least one criterion. Count the variants mentioned in
-the story, count the criteria covering each — flag uncovered
+the story, count the criteria covering each, flag uncovered
 variants. Example: a story says "generates output for 4 scenarios"
-but only 2 of 4 have criteria — the other 2 are untested.
+but only 2 of 4 have criteria, the other 2 are untested.
 
 **Common misses:**
 - Happy path only (no error scenarios for P1 stories)
@@ -85,10 +85,10 @@ without definition. No pronouns with ambiguous referents.
   on first use
 
 **Common misses:**
-- "Large files" — how large? 1MB? 1GB? 100GB?
-- "Recent items" — how recent? Last hour? Last 7 days?
-- "Quickly loads" — under 200ms? Under 1s? Under 5s?
-- "Secure access" — authentication? authorization? encryption?
+- "Large files", how large? 1MB? 1GB? 100GB?
+- "Recent items", how recent? Last hour? Last 7 days?
+- "Quickly loads", under 200ms? Under 1s? Under 5s?
+- "Secure access", authentication? authorization? encryption?
 
 ---
 
@@ -141,7 +141,7 @@ MVP that delivers user value on its own.
 - At least one P1 story exists
 - The P1 set alone would be a useful, shippable increment
 - Every story has a "Why P_" justification
-- Everything is NOT P1 — if it is, priorities aren't real
+- Everything is NOT P1, if it is, priorities aren't real
 
 **Priority dependency check:** If a P1 story depends on work
 that's currently P2 or P3 (or doesn't exist yet), flag it:
@@ -186,7 +186,7 @@ No unresolved `[NEEDS CLARIFICATION]` markers remain.
 - If any remain, they must be either:
   - Resolved (marker replaced with the answer)
   - Deferred with rationale in Notes section:
-    `[DEFERRED: not clarified — <reason>]`
+    `[DEFERRED: not clarified, <reason>]`
 
 **Common misses:**
 - Markers buried in nested sections
@@ -208,7 +208,7 @@ project-specific criteria:
 4. Verify each standard is met
 
 Document project-specific failures the same way as generic
-failures — fix or add to Notes with rationale.
+failures, fix or add to Notes with rationale.
 
 ---
 

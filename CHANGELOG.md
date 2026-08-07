@@ -1,60 +1,67 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [2.0.0] - 2026-05-27
-
-### Changed (breaking)
-
-- Renamed `/tdd` to `/implement`. The slash command is now `/implement <feature>`. Speckit command ID is `speckit.dev-workflow.implement` (alias `speckit.implement`); the previous `speckit.dev-workflow.tdd` ID no longer resolves. Skill directory moved from `skills/tdd/` to `skills/implement/`.
-- Tracker filename convention is now `impl-tracker-<feature>.json`. The previous `tdd-tracker-*.json` prefix is no longer recognized by review-plan / review-impl.
-- Phase 6 parallel reviewer is now `/code-review` (read-only) instead of `/simplify` (which writes to the tree). Running a writer concurrently with review-impl was racy; the review pair is now both read-only.
-- This repo is now the only distribution channel. `openkash/ai-agent-spec-skill` and `openkash/ai-agent-tdd-skill` are deprecated; the spec-sync workflow and `sync.sh` script have been removed. Install via the Claude Code plugin or copy directly from this repo.
-
-### Added
-
-- UI state-holder vs rendering-only distinction in the test-strategy table. UI chunks that introduce `mutableStateOf`, `LaunchedEffect`/`useEffect`, hoisted state, or input transformation must extract a state holder and unit-test its transitions. Pure prop/callback threading with no logic keeps the "no test" exemption.
-- Both review-plan and review-impl now check the state-holder exemption explicitly. A chunk that claims "Pure UI — no test" while introducing a holder is flagged as a FAIL.
-- Small-feature shortcut keeps both review gates. Only Plan Mode (Phase 2.4) and chunk decomposition (Phase 2.1-2.2) collapse for 1-chunk features; review-plan and review-impl + /code-review still run.
-
-### Migration
-
-- Replace any saved `/tdd <feature>` invocations with `/implement <feature>`.
-- Rename existing in-flight tracker files from `tdd-tracker-*.json` to `impl-tracker-*.json` if you want them picked up by the agents on resumption.
-- Update any project-level docs or onboarding notes that reference `skills/tdd/` to `skills/implement/`.
-- If you customised `skills/tdd/PROJECT.md`, copy it to `skills/implement/PROJECT.md` before pulling — the directory rename means the old path will not exist after the update.
-- The `resume` field on tracker chunks has been removed; per-chunk pattern hints and pitfalls now live in the optional `notes` field.
-
-## [1.1.0] - 2026-04-12
+## 2.5.0
 
 ### Changed
+- **red-team `mode: cleanup` can now apply fixes**: added `Edit`/`Write`
+  to its tools so the tidy pass can edit files, not just report.
+- **red-team is no longer git-only**: Phase 0 shows git as the common
+  case but instructs substituting another VCS (hg, jj, Perforce) or
+  asking the caller for the changed set, and clarifies that a tracker or
+  plan path is context, not the review target.
+- **`/implement` degrades gracefully with no PROJECT.md**: infers the
+  test/build commands, confirms them with the user, notes the miss in
+  the tracker, and suggests creating one, matching how `/spec` already
+  behaves.
+- Wired the conventions angle into every red-team mode and disambiguated
+  "all modes" from the mode literally named `both`.
 
-- `/tdd` Phase 2.5 restructured as artifact-triggered gate. The tracker file from Phase 2.3 triggers the review-plan agent automatically. Phase 3 is blocked until review completes. Replaces soft instructional wording that was often skipped.
-- `/tdd` Phase 6 restructured as parallel gate. review-impl agent and /simplify now run concurrently in a single spawn. Removed "medium+ features" qualifier and "self-verification sufficient" escape hatch. Phase 6 review applies to all features including small ones.
-- `review-plan` criterion 1 renamed from "Completeness" to "Scope & Completeness". Now checks both directions: every criterion has a chunk (completeness) AND every chunk serves a criterion (containment). Catches scope expansion before it becomes code.
+### Fixed
+- review-impl no longer treats the post-implementation document as
+  mandatory; its absence on a small self-contained change is no longer a
+  false finding, matching the implement skill's conditional-docs rule.
+- The plan-review gate branches on the verdict review-plan actually
+  emits (`PASS-WITH-WARNINGS`) instead of a `WARN` value it never
+  produces.
+- `/implement` reads the spec directory from `PROJECT.md` (default
+  `docs/specs/`), matching where `/spec` writes, instead of a hard-coded
+  path.
+- README install now documents both `PROJECT.md` templates, points at
+  the `project-configs/` examples, and clarifies where `PROJECT.md`
+  lives for plugin installs.
+- Removed every em dash from the repository in favor of standard
+  punctuation.
+
+## 2.0.0
+
+Renamed from `ai-agent-dev-workflow` to `devloop`.
 
 ### Added
+- **`red-team` agent**, adversarial diff reviewer that hunts
+  correctness bugs (5 angles) and flags cleanup (reuse, simplification,
+  efficiency, altitude), verifies each finding (recall-biased,
+  3-state), then sweeps for gaps. Modes: `bugs`, `cleanup`, `both`.
+  The `cleanup` mode is a standalone tidy pass.
 
-- `plan_review` field in tracker schema. Stores the review-plan gate verdict (PASS/PASS-WITH-WARNINGS/FAIL) so it survives session resets. Session resumption checks this field before Phase 3.
-- Fallback clauses for agent failures. If review-plan or review-impl agents timeout or error, the skill falls back to self-check against quality-checklist.md instead of silently skipping.
-- Gate annotations in `/tdd` process overview showing which artifacts trigger which reviews and what they block.
+### Changed
+- Renamed the `tdd` skill to `implement`.
+- **Phase 6 quality gate now spawns `review-impl` + `red-team` in
+  parallel** instead of `review-impl` + `/code-review`. A skill runs in
+  the main loop and cannot invoke another skill or slash command, so it
+  could not trigger `/code-review`. `red-team` ports the same
+  finder-angle engine into an agent the skill *can* spawn via the Agent
+  tool.
+- Post-implementation documentation is now **conditional** (write it
+  when the work outlives the session or has deferred follow-ups; skip
+  it for small closed fixes) instead of mandatory for every change.
+- Sharpened the scaffolding-calibration guidance for
+  strong-instruction-following models: prefer fewer/larger chunks and
+  fewer resets; keep the tracker and review gates; make bug review
+  recall-biased-then-verified rather than conservative single-pass.
 
-## [1.0.0] - 2026-03-28
-
-### Added
-
-- `/spec` skill — structured specification with user stories, acceptance criteria, interactive clarification (max 5 questions), 9-category ambiguity taxonomy, and 8-point validation
-- `/tdd` skill — test-driven development with chunk decomposition, dependency graphs, JSON tracker with per-chunk resume fields, and red-green-refactor cycle
-- `review-plan` agent — independent 8-point plan review (completeness, correctness, functional gaps, standards, regression, robustness, architectural gaps, TDD quality) running in isolated context
-- `review-impl` agent — independent 8-point implementation review (plan conformance, acceptance criteria, test quality, code quality, regression, robustness, dead code, documentation) running in isolated context
-- Claude Code plugin format with auto-discovery
-- Project-specific configuration via `PROJECT.md` templates
-- Example configs for Android/Kotlin, TypeScript/Node, Python/Django, Python/pytest, Rust/CLI, Rust/Cargo
-- Session resumption via JSON tracker with per-chunk resume fields
-
-[2.0.0]: https://github.com/openkash/ai-agent-dev-workflow/releases/tag/v2.0.0
-[1.1.0]: https://github.com/openkash/ai-agent-dev-workflow/releases/tag/v1.1.0
-[1.0.0]: https://github.com/openkash/ai-agent-dev-workflow/releases/tag/v1.0.0
+### Removed
+- Dependency on `/code-review` from within the `implement` skill (a
+  skill cannot invoke it).
+- The `extension.yml` spec-kit manifest. `.claude-plugin/plugin.json`
+  is the single source of truth; the spec-kit convention added a second
+  manifest to keep in sync with no consumer in this project.

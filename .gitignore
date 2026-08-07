@@ -8,5 +8,8 @@
 .idea/
 .vscode/
 
+# Working docs
+docs/
+
 # Node (if users clone into a node project)
 node_modules/

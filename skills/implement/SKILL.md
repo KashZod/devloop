@@ -10,8 +10,8 @@ effort: high
 Implement the following using test-driven development: $ARGUMENTS
 
 Tests give Claude a self-verification loop. Instead of producing code
-that looks right, write tests first, then implement until they pass.
-This is the highest-leverage pattern for agentic coding.
+that looks right, write tests first, then implement until they pass, so
+correctness is checked by execution rather than by inspection.
 
 ## Mapping to Claude Code Workflow
 
@@ -37,9 +37,8 @@ existing coverage) -> Implement -> Post-Test (regression) -> Quality
 Verification. Use a 1-chunk tracker (see
 [tracker-schema.md](references/tracker-schema.md) §Single-Chunk
 Features). Only Plan Mode (2.4) and chunk decomposition (2.1-2.2)
-collapse — Phase 2.5 (review-plan) and Phase 6 (review-impl +
-/code-review) still run. Small features carry the same regression
-risk as large ones.
+collapse, Phase 2.5 (review-plan) and Phase 6 (review-impl +
+red-team) still run; small features carry the same regression risk.
 
 ## Supporting Files
 
@@ -49,25 +48,25 @@ Load these on demand, not all upfront:
 |---|---|
 | [chunk-template.md](references/chunk-template.md) | Phase 2, when decomposing into chunks (skip for small features) |
 | [tracker-schema.md](references/tracker-schema.md) | Phase 2.3, when creating the tracker (all features) |
-| [quality-checklist.md](references/quality-checklist.md) | Phase 2.5 (plan review) and Phase 6 (final verification) |
+| [quality-checklist.md](references/quality-checklist.md) | Phase 2.5 (plan review) and Phase 6 (final verification, or agent-failure fallback) |
 
 ## Process Overview
 
 ```text
 Phase 1: Analysis
 Phase 2: Planning
-  └─ 2.5: Plan Review Gate (review-plan agent — blocks Phase 3)
+  └─ 2.5: Plan Review Gate (review-plan agent, blocks Phase 3)
 Phase 3: Pre-Test (per chunk)
 Phase 4: Implementation (per chunk)
 Phase 5: Post-Test (per chunk)
 Phase 6: Quality Verification
-  └─ Gate: review-impl agent + /code-review (parallel — blocks completion)
+  └─ Gate: review-impl + red-team agents (parallel, blocks completion)
 ```
 
 Each phase must complete before the next begins.
 For multi-chunk features, Phases 3-5 repeat per chunk.
 Gates are artifact-triggered: the tracker file triggers review-plan
-(2.5), all chunks complete triggers review-impl + /code-review (6).
+(2.5), all chunks complete triggers review-impl + red-team (6).
 
 ---
 
@@ -77,10 +76,12 @@ Gates are artifact-triggered: the tracker file triggers review-plan
 
 - Read the user's request carefully
 - Identify: new feature, enhancement, bug fix, refactor, or test
-- Check `docs/specs/` for an existing spec file matching the feature.
-  If found, use it as primary input — user stories, acceptance criteria,
-  and edge cases become the basis for chunk decomposition in Phase 2.
-  (Specs are produced by the companion `/spec` skill in this plugin.)
+- Check the spec directory (from `PROJECT.md`, default `docs/specs/`)
+  for an existing spec file matching the feature. If found, use it as
+  primary input, user stories, acceptance criteria, and edge cases
+  become the basis for chunk decomposition in Phase 2. (Specs are
+  produced by the companion `/spec` skill in this plugin, which writes
+  to the same configurable location.)
 - Ask clarifying questions if the scope is ambiguous
 
 ### 1.2 Explore Current Code
@@ -99,26 +100,26 @@ back summaries, keeping your main context clean for implementation.
 - Research platform-specific handling and conventions
 - Check official documentation for frameworks in use
 - Check changelogs and migration guides for your dependency
-  versions — APIs may behave differently across major/minor
-  releases (e.g., a method that re-runs in v1.0 may only
-  recompose in v1.1)
+  versions, APIs may behave differently across releases
 - Identify relevant specs (RFCs, W3C, language specs)
 - Note platform-specific quirks and edge cases
 
 ### 1.4 Check Project Architecture Patterns
 
-Verify alignment with the project's established architecture.
-Refer to `PROJECT.md` for project-specific patterns.
+Load `PROJECT.md` for build/test/lint commands, architecture rules,
+standards, and blindspots, and verify the change aligns with them. If it's
+absent or only template placeholders (`YOUR_*_HERE`), proceed without it:
+infer the test/build commands from the project (build files, CI config,
+`Makefile`), confirm them with the user before relying on them in Phase 3+,
+note the miss in the tracker, and suggest creating one.
 
 Common patterns to verify:
 
 - **Layered architecture** respected (UI -> Domain -> Data)
 - **Repository/service boundaries** not bypassed
-- **Test double strategy** matches project convention
-  (fakes vs mocks vs stubs)
+- **Test double strategy** matches project convention (fakes/mocks/stubs)
 - **Dependency injection** bindings exist for new dependencies
-- **Type safety** enforced where the project expects it
-  (sealed types, enums, branded types)
+- **Type safety** enforced where expected (sealed types, enums, branded)
 
 ### 1.5 Verify Signatures and Dependencies
 
@@ -168,7 +169,7 @@ Always update status to `in_progress` BEFORE starting a chunk.
 **Why always?** The tracker is a file-based artifact that survives
 context resets. Relying on in-context memory loses state when
 sessions end or context is compacted. The tracker ensures any
-session — current or future — can pick up exactly where work
+session, current or future, can pick up exactly where work
 stopped.
 
 ### 2.4 Present Plan to User
@@ -189,12 +190,12 @@ before proceeding to implementation.
 
 ### 2.5 Plan Review Gate
 
-**GATE — The tracker artifact from 2.3 triggers this review.
+**GATE: The tracker artifact from 2.3 triggers this review.
 Do not proceed to Phase 3 until review completes.**
 
 The tracker file is the review input. Spawn the `review-plan`
-agent (`.claude/agents/review-plan.md`) as a subagent so the
-reviewer operates in a fresh context without author bias:
+agent as a subagent so the reviewer operates in a fresh context
+without author bias:
 
 ```
 Use the review-plan agent to review [path to tracker]
@@ -205,7 +206,7 @@ correctness, functional gaps, standards, regression risk,
 robustness, architectural gaps, and TDD quality.
 
 **FAIL:** update the plan and re-run review-plan.
-**WARN:** proceed with a note.
+**PASS-WITH-WARNINGS:** proceed with a note.
 **PASS:** proceed to Phase 3.
 **Agent failure** (timeout, error): fall back to self-check against
 [quality-checklist.md](references/quality-checklist.md) and proceed.
@@ -228,7 +229,7 @@ Record the verdict in the tracker's top-level `plan_review` field
 | Configuration / preferences | Defaults, type conversions, round-trips |
 | Composite / aggregating layer | Merge logic, fallbacks, empty states |
 | Interface / trait only | No test (tested via downstream fake) |
-| UI: state-holder / hoisted state | TEST — extract holder, unit-test transitions |
+| UI: state-holder / hoisted state | TEST, extract holder, unit-test transitions |
 | UI: rendering only (no logic) | No test (build + regression) |
 | DI wiring / config | No test (verified by compilation) |
 | Type migration / rename | No test (verified by compilation) |
@@ -334,46 +335,55 @@ to name the session for reference.
 
 **Mid-chunk (fallback only):** If you must compact within a chunk,
 run `/compact Focus on the current chunk, tracker path, and test
-results`. This is a fallback — finish the chunk and reset.
+results`. This is a fallback, finish the chunk and reset.
 
 ---
 
 ## Phase 6: Quality Verification
 
-After all chunks complete, run the 8-point checklist.
-See [quality-checklist.md](references/quality-checklist.md)
-for detailed criteria.
+After all chunks complete, run the 8-point checklist. See
+[quality-checklist.md](references/quality-checklist.md) for detail:
+1. **Completeness** 2. **Correctness** 3. **Gaps (Functional)**
+4. **Standards** 5. **Regression** 6. **Robustness**
+7. **Gaps (Architectural)** 8. **Blindspots**
 
-### Quick Reference
+**GATE: All chunks complete triggers parallel review.** Spawn two
+independent agents in a single message so they run concurrently. Both
+are read-only (`red-team` in `both` mode reports; it does not apply),
+so concurrent runs are safe:
 
-1. **Completeness** - All acceptance criteria met
-2. **Correctness** - Data mapping, conversions, logic
-3. **Gaps (Functional)** - No broken refs or orphaned code
-4. **Standards** - Project patterns, platform conventions
-5. **Regression** - Full test suite passes, build succeeds
-6. **Robustness** - Error handling, empty states, edge cases
-7. **Gaps (Architectural)** - Abstraction boundaries respected
-8. **Blindspots** - Concurrency, security, edge environments
-
-**GATE — All chunks complete triggers parallel review.** Both
-reviewers are read-only as long as `/code-review` is invoked
-without `--fix`, so concurrent runs are safe. Spawn both in a
-single message:
-
-1. **`review-impl` agent** — covers all 8 quality-checklist criteria
-   (completeness, correctness, gaps, standards + architecture,
-   regression, robustness + blindspots, dead code, documentation)
-2. **`/code-review`** — reports correctness bugs and reuse /
-   simplification cleanups on the diff
+1. **`review-impl` agent**, plan-conformance reviewer. Runs the 8
+   quality-checklist criteria against the tracker. Answers "does the
+   implementation match what was planned?"
+2. **`red-team` agent** (`mode: both`), adversarial diff reviewer.
+   Hunts correctness bugs (5 angles) and flags cleanup (reuse,
+   simplification, efficiency, altitude), verifies each finding
+   (recall-biased), then sweeps for gaps. Answers "what is wrong or
+   wasteful in this diff, regardless of the plan?"
 
 ```
 In parallel:
 - Use the review-impl agent to review implementation against [path to tracker]
-- Run /code-review on changed files
+- Use the red-team agent in mode: both to review the changed files (pass the tracker path)
 ```
 
-Merge findings from both sources, address any FAIL findings, then
-re-run the suite.
+Complementary by design: `review-impl` checks conformance to intent
+(conservative, PASS when the plan is met); `red-team` checks
+correctness independent of intent (recall-biased, surfaces
+everything, then verifies). A bug conforming to a flawed plan is caught
+only by `red-team`; a correct-but-off-spec change only by `review-impl`.
+
+Merge findings. Address every `red-team` **FAIL** (CONFIRMED
+correctness) and every `review-impl` FAIL before completing; treat WARN
+as a judgment call. Re-run the suite after any fix.
+
+> **Why not `/code-review`?** A skill runs in the main loop and can't
+> invoke another skill or slash command, so it can't trigger
+> `/code-review` (itself a forked subagent). `red-team` ports the same
+> finder-angle engine into an agent this skill *can* spawn via the Agent
+> tool. For the cleanup-only pass (the `/simplify` equivalent), spawn
+> `red-team` in `mode: cleanup`: only the four cleanup angles, applies
+> safe fixes, skips anything behavior-changing, no bug hunting.
 
 **Agent failure** (timeout, error): fall back to self-check against
 the full [quality-checklist.md](references/quality-checklist.md).
@@ -381,27 +391,25 @@ Document any agent failures in the tracker.
 
 ### Post-Implementation Documentation
 
-**Always create or update a reference document** that survives
-context compaction. This is required even for small fixes.
-The document serves as the single source of truth for what was
-done, why, and what remains.
+Create or update a reference document **when the work will outlive
+this session**, multi-chunk features, deferred follow-ups, bug fixes
+with a non-obvious root cause, or changes to a subsystem that already
+has a design/analysis doc. It's the single source of truth for what was
+done, why, and what remains, and it survives context compaction.
 
-Contents:
-- What was changed and why (bugs found, spec sections, fixes applied)
-- What was tested and confirmed working (passing tests)
-- What remains (known gaps, future work)
-- Test file locations and counts
+**Skip it** for small, self-contained changes whose full story is
+already in the diff, the commit message, and the tracker's acceptance
+criteria. Writing one anyway is scope the user didn't ask for. When in
+doubt: would a future session be lost without it? If the diff and commit
+answer that, don't write the doc.
 
-If the feature already has an analysis doc, design doc, or issue
-tracker, update it instead of creating a new one:
+When you do write one, cover: what changed and why (bugs found, spec
+sections, fixes applied); what was tested and confirmed working; what
+remains (known gaps, future work); test file locations and counts.
 
-- Update status of implemented items (e.g., "A1: Implemented")
-- Add commit/version reference
-- Mark remaining items as still pending
-
-**Why mandatory?** Context compaction loses implementation details.
-The doc ensures a future session can understand the full scope of
-what was reviewed, what was fixed, and what was intentionally left.
+If the feature already has an analysis/design doc or issue tracker,
+update it instead of creating a new one: update implemented-item
+status, add a commit/version reference, mark remaining items pending.
 
 ---
 
@@ -419,10 +427,9 @@ what was reviewed, what was fixed, and what was intentionally left.
    Use common properties first; branch only for unique data
 6. **Catch narrow exceptions for skip+continue** -
    When converting `throw` to `continue` (resilience fix),
-   narrow catch scope. Fatal errors (OOM, stack overflow)
-   indicate the runtime is broken - continuing would cause
-   cascading failures. Also verify cancellation exceptions
-   can't reach the catch site
+   narrow catch scope. Fatal errors (OOM, stack overflow) mean
+   the runtime is broken, continuing cascades failures. Verify
+   cancellation exceptions can't reach the catch site
 7. **Fix sibling components together** -
    If two components share the same bug pattern, fix both
    in one pass. Don't leave one broken for a future session
@@ -450,15 +457,22 @@ what was reviewed, what was fixed, and what was intentionally left.
     limitations. As models improve, re-evaluate whether
     scaffolding (sprint decomposition, heavy chunking,
     frequent resets) is still needed. Remove what no longer
-    helps — simpler processes with fewer handoffs are faster
-    and lose less context
+    helps, simpler processes with fewer handoffs are faster
+    and lose less context. With a strong-instruction-following
+    model, prefer fewer/larger chunks and fewer resets: the
+    tracker and review gates are load-bearing, chunk-granularity
+    and reset-frequency are not. Such a model also follows a
+    conservative instruction literally and will under-report,
+    so where a step says "be careful" or "only flag important
+    issues," prefer surface-everything-then-filter (why the
+    red-team gate is recall-biased with a downstream verify)
 13. **Calibrate evaluation criteria over time** -
     After Phase 6, compare your quality assessment to what
     the user actually flagged. If you marked "all criteria
     met" but the user found gaps, tighten the checklist or
     acceptance criteria for next time. This QA tuning loop
-    — read evaluator output, find divergences from human
-    expectations, refine criteria — compounds over sessions
+   , read evaluator output, find divergences from human
+    expectations, refine criteria, compounds over sessions
 14. **Check dependency version changelogs during analysis** -
     APIs can change behavior across minor versions without
     changing their signature. A method that fully re-executes
@@ -484,7 +498,7 @@ Refer to `PROJECT.md` for project-specific commit conventions
 When resuming work on an in-progress feature:
 
 1. Read the JSON tracker to find current progress
-2. Check `plan_review` field — if missing or `"FAIL"`, run Phase 2.5
+2. Check `plan_review` field, if missing or `"FAIL"`, run Phase 2.5
    before proceeding
 3. Read the plan file for detailed chunk descriptions
 4. Find next `pending` chunk where all `depends_on` are `complete`

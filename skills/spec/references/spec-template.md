@@ -25,7 +25,7 @@ spec-version: 1
 ## Overview
 
 <2-3 sentences: WHAT this feature does and WHY it matters.
-Focus on user value. No implementation details — no frameworks,
+Focus on user value. No implementation details, no frameworks,
 no file paths, no algorithms.>
 
 ## User Stories
@@ -137,9 +137,9 @@ spec-version: 1                # Bumped when spec is re-run/updated
 - Be specific: "error message appears" is too vague,
   "red banner shows 'Failed to save. Retry?'" is testable
 - Hint at test complexity in parentheses:
-  - `(1 test)` — single assertion
-  - `(parameterized)` — multiple input/output combinations
-  - `(integration)` — requires external dependency or multi-step setup
+  - `(1 test)`, single assertion
+  - `(parameterized)`, multiple input/output combinations
+  - `(integration)`, requires external dependency or multi-step setup
 - Avoid criteria that test implementation ("database row is created");
   test behavior ("user sees the new item in their list")
 
@@ -172,7 +172,7 @@ spec-version: 1                # Bumped when spec is re-run/updated
 
 ### Implementation Mapping
 
-- Always include this section — it's the bridge to implementation
+- Always include this section, it's the bridge to implementation
 - Maps each spec section to the /implement phase that consumes it
 - The /implement skill references this table to know where to look
 - **Non-code projects:** If the deliverable is content, config, or
@@ -192,4 +192,4 @@ spec-version: 1                # Bumped when spec is re-run/updated
 
 - Validation warnings from Phase 4
 - Deferred items (ambiguities that weren't worth clarifying)
-- Remove this section entirely if empty — don't leave an empty heading
+- Remove this section entirely if empty, don't leave an empty heading

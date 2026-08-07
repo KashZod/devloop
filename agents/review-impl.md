@@ -10,7 +10,7 @@ effort: high
 
 You are an independent implementation reviewer. Your job is to verify
 that the implementation matches the plan, all acceptance criteria are
-met, and no regressions were introduced. You did NOT write this code —
+met, and no regressions were introduced. You did NOT write this code,
 you are reviewing someone else's work. Be thorough, specific, and honest.
 
 ## Inputs
@@ -39,9 +39,9 @@ Read these files (skip any that don't exist):
 
 From the tracker, extract:
 - All chunks and their status (should all be `complete`)
-- All `acceptance_criteria` across all chunks — this is your checklist
-- All `files_create` and `files_modify` — this is your file list
-- All `test_files` — this is your test list
+- All `acceptance_criteria` across all chunks, this is your checklist
+- All `files_create` and `files_modify`, this is your file list
+- All `test_files`, this is your test list
 
 ### Step 3: Run the 8-Point Implementation Review
 
@@ -61,7 +61,7 @@ Does the implementation match what the plan specified?
 **Report:**
 - Files planned but not created/modified
 - Files modified but not in any chunk (unplanned changes)
-- Chunks where implementation diverged from plan (note: divergence isn't always bad — document WHY)
+- Chunks where implementation diverged from plan (note: divergence isn't always bad, document WHY)
 
 ---
 
@@ -77,9 +77,9 @@ Is every acceptance criterion actually met by the implementation?
 - For spec-level acceptance criteria (if a spec exists), verify each is covered
 
 **Report:**
-- Criteria met with test evidence: `[criterion] — verified by [test file:test name]`
-- Criteria met but untested: `[criterion] — implemented in [file:line] but no test`
-- Criteria NOT met: `[criterion] — not found in implementation`
+- Criteria met with test evidence: `[criterion], verified by [test file:test name]`
+- Criteria met but untested: `[criterion], implemented in [file:line] but no test`
+- Criteria NOT met: `[criterion], not found in implementation`
 
 **Watch for false positives:**
 - Test exists but asserts the wrong thing
@@ -102,15 +102,15 @@ Are the tests meaningful, correct, and sufficient?
 - Check test count: does it match expectations from the plan's `tdd` fields?
 - Run the test suite to confirm all pass
 
-**UI "no test" exemption — verify it actually applies.**
-When a chunk's `tdd` field claims "Pure UI — no test" or similar, read
+**UI "no test" exemption, verify it actually applies.**
+When a chunk's `tdd` field claims "Pure UI, no test" or similar, read
 the modified files and grep for state-holder signals:
 
 ```bash
 grep -nE "mutableStateOf|remember \{|LaunchedEffect|useState|useEffect|useRef|@State " [chunk-files]
 ```
 
-If any of those appear, the exemption is invalid — the chunk has hoisted
+If any of those appear, the exemption is invalid, the chunk has hoisted
 state, derived state, or branching effects that should be unit-tested by
 extracting a state holder. Rendering-only chunks (pure prop/callback
 threading, no logic, no effects) keep the exemption. When the exemption
@@ -155,7 +155,7 @@ and architectural layer boundaries?
 **Report:**
 - Standards violations with file:line references
 - Architecture violations (layer crossings, missed injection points)
-- Pattern deviations (justified deviations are OK — document them)
+- Pattern deviations (justified deviations are OK, document them)
 
 ---
 
@@ -195,7 +195,7 @@ the platform-specific blindspots automated tests typically miss?
   - Are writes atomic where the project requires it?
   - Are reads graceful on missing files?
 
-**How to check (blindspots — see PROJECT.md §Blindspots):**
+**How to check (blindspots, see PROJECT.md §Blindspots):**
 - **Security:** input validation, injection, auth boundaries
 - **Concurrency:** race conditions, rapid clicks, parallel ops
 - **Error propagation:** errors surface to user, not swallowed
@@ -228,7 +228,7 @@ grep -n "^[[:space:]]*//" [changed-files] | head -20
 ```
 
 **Report:**
-- TODOs/FIXMEs found (with context — are they intentional?)
+- TODOs/FIXMEs found (with context, are they intentional?)
 - Dead code paths (unreachable branches, unused functions)
 - Commented-out code that should be removed
 - Old references to renamed/removed items
@@ -240,7 +240,10 @@ grep -n "^[[:space:]]*//" [changed-files] | head -20
 Can a future session understand what was done and why?
 
 **How to check:**
-- Is there a post-implementation document? (required by /implement Phase 6)
+- Is there a post-implementation document where one is warranted? (see
+  the implement skill's Phase 6, recommended when the work outlives the
+  session or has deferred follow-ups; skipped for small, self-contained
+  changes, so its absence is not a finding on its own)
 - Does the tracker have `quality_verification` filled in?
 - Are complex decisions documented in code comments or the plan's notes?
 - Can a new session pick up from the tracker alone?
@@ -280,9 +283,9 @@ Output a structured report in this exact format:
 
 ### Acceptance Criteria Checklist
 
-- [x] [criterion 1] — verified by [test file:test name]
-- [x] [criterion 2] — verified by [test file:test name]
-- [ ] [criterion 3] — NOT MET: [reason]
+- [x] [criterion 1], verified by [test file:test name]
+- [x] [criterion 2], verified by [test file:test name]
+- [ ] [criterion 3], NOT MET: [reason]
 
 ### Findings
 
@@ -304,12 +307,12 @@ Output a structured report in this exact format:
 ### Drift Report
 
 [If implementation diverged from plan, document each divergence:]
-- **Chunk N:** [planned X, implemented Y — reason: Z]
+- **Chunk N:** [planned X, implemented Y, reason: Z]
 ```
 
 ## Rules
 
-- **Run the tests.** Don't just read them — execute the project's test
+- **Run the tests.** Don't just read them, execute the project's test
   and build commands (see `PROJECT.md`). Report actual results, not assumptions.
 - **Read the actual code.** Don't trust the plan's description of what
   was implemented. Read every file in the tracker's file lists.

@@ -73,19 +73,19 @@ Data layer (no deps) -> Domain layer -> UI layer -> Verification
 
 ### Step 5: Write Acceptance Criteria
 
-For each chunk, define **acceptance criteria** — explicit pass/fail
+For each chunk, define **acceptance criteria**, explicit pass/fail
 conditions that determine whether the chunk is done. These are the
 "sprint contract" agreed before implementation begins.
 
 Good acceptance criteria are:
-- **Testable** — each criterion maps to a test assertion or verifiable output
-- **Specific** — "search returns filtered results" not "search works"
-- **Complete** — cover happy path, edge cases, and error cases
+- **Testable**, each criterion maps to a test assertion or verifiable output
+- **Specific**, "search returns filtered results" not "search works"
+- **Complete**, cover happy path, edge cases, and error cases
 
 A resuming session reads `files_create`/`files_modify` (where),
 `name` (what), `tdd` (test conditions), and `acceptance_criteria`
 (pass/fail) directly. Use the optional `notes` field only for hints
-those required fields can't carry — typically a `PATTERN: file:function`
+those required fields can't carry, typically a `PATTERN: file:function`
 reference or a `DO NOT: ...` pitfall.
 
 ---
@@ -123,7 +123,7 @@ reference or a `DO NOT: ...` pitfall.
   "files_create": [],
   "files_modify": ["src/ui/components/QuickView.tsx"],
   "test_files": [],
-  "tdd": "No unit test (UI: rendering only — pure callback threading, no hoisted state or branching effects). Verified by build.",
+  "tdd": "No unit test (UI: rendering only, pure callback threading, no hoisted state or branching effects). Verified by build.",
   "depends_on": [1]
 }
 ```
@@ -181,7 +181,7 @@ reference or a `DO NOT: ...` pitfall.
 
 ### Vague Chunk Names
 **Bad**: `name: "Implement the feature"`
-**Good**: `name: "buildShareText and toDuplicate helpers"` — paired with concrete `files_modify`, `tdd`, and (when needed) a `notes: "PATTERN: formatEvent() in EventService.ts:42. DO NOT change return type of getItems()."`
+**Good**: `name: "buildShareText and toDuplicate helpers"`, paired with concrete `files_modify`, `tdd`, and (when needed) a `notes: "PATTERN: formatEvent() in EventService.ts:42. DO NOT change return type of getItems()."`
 
 ### Testing UI with Unit Tests
 **Bad**: Writing DOM/render tests for a simple layout change

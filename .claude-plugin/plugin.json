@@ -1,11 +1,11 @@
 {
-  "name": "dev-workflow",
-  "version": "2.0.0",
-  "description": "Spec, Plan, Review, Implement, Verify — a complete AI development workflow with test-driven implementation, structured specifications, and independent review agents.",
-  "keywords": ["tdd", "implement", "specification", "code-review", "workflow", "quality"],
-  "homepage": "https://github.com/openkash/ai-agent-dev-workflow",
+  "name": "devloop",
+  "version": "2.5.0",
+  "description": "Spec, plan, implement, review: a test-driven development loop for AI coding agents, with structured specifications, TDD chunk decomposition, and independent review agents (plan review, implementation review, and an adversarial red-team diff reviewer).",
+  "keywords": ["tdd", "specification", "code-review", "red-team", "workflow", "quality"],
+  "homepage": "https://github.com/KashZod/devloop",
   "author": {
-    "name": "openkash"
+    "name": "KashZod"
   },
   "skills": [
     {
@@ -16,7 +16,24 @@
     {
       "name": "implement",
       "path": "skills/implement",
-      "description": "Test-driven implementation with chunk decomposition, JSON tracker, and 8-point quality checklist"
+      "description": "Test-driven implementation with chunk decomposition, JSON tracker, quality checklist, and parallel independent review (review-impl + red-team)"
+    }
+  ],
+  "agents": [
+    {
+      "name": "review-plan",
+      "path": "agents/review-plan.md",
+      "description": "Independent 8-point plan review, runs in isolated context to eliminate author-evaluator bias"
+    },
+    {
+      "name": "review-impl",
+      "path": "agents/review-impl.md",
+      "description": "Independent implementation review, verifies plan conformance, acceptance criteria, test quality, and drift"
+    },
+    {
+      "name": "red-team",
+      "path": "agents/red-team.md",
+      "description": "Adversarial diff reviewer, hunts correctness bugs and flags cleanup, verifies each finding, then sweeps for gaps. Modes: bugs, cleanup, both"
     }
   ]
 }

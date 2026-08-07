@@ -12,7 +12,7 @@ Verify every acceptance criterion is met.
 
 **Self-evaluation warning:** This is where generators most often
 over-report. Cross-check each criterion against the tracker's
-`acceptance_criteria` array — don't rely on memory of what was
+`acceptance_criteria` array, don't rely on memory of what was
 planned. If using a subagent evaluator, have it verify independently.
 
 **How to check:**
@@ -62,7 +62,7 @@ Verify data mapping, conversions, and logic are correct.
 Verify no broken references, missing wiring, or orphaned code.
 
 **Self-evaluation warning:** Generators tend to miss gaps in files
-they didn't directly modify. Always grep — don't rely on recall of
+they didn't directly modify. Always grep, don't rely on recall of
 which files reference the changed code.
 
 **How to check:**
@@ -176,8 +176,10 @@ Verify edge cases that automated tests may miss.
 
 **Self-evaluation warning:** This is the hardest point to
 self-assess honestly. Generators naturally focus on what they
-built, not what they missed. The `/code-review` skill running in
-parallel (see Phase 6) catches what self-evaluation misses.
+built, not what they missed. The `red-team` agent running in
+parallel (see Phase 6) catches what self-evaluation misses, it
+reviews the diff adversarially in a fresh context, so it isn't
+anchored on what you intended to build.
 
 **Always check:**
 

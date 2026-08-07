@@ -1,7 +1,7 @@
 # Privacy Policy
 
-**Plugin:** dev-workflow
-**Last updated:** 2025-03-26
+**Plugin:** devloop
+**Last updated:** 2026-08-07
 
 ## Data Collection
 
@@ -10,7 +10,7 @@ This plugin collects no data. It consists entirely of markdown files (skills, ag
 ## What This Plugin Does
 
 - Provides two skills (`/spec`, `/implement`) that guide Claude Code through structured development workflows
-- Provides two review agents (`review-plan`, `review-impl`) that evaluate plans and implementations
+- Provides three review agents (`review-plan`, `review-impl`, `red-team`) that evaluate plans, implementations, and diffs
 - All processing happens locally in your Claude Code session
 
 ## What This Plugin Does NOT Do
@@ -27,4 +27,4 @@ This plugin does not integrate with or send data to any third-party services. Yo
 
 ## Contact
 
-For questions about this privacy policy, open an issue at [github.com/openkash/ai-agent-dev-workflow](https://github.com/openkash/ai-agent-dev-workflow/issues).
+For questions about this privacy policy, open an issue at [github.com/KashZod/devloop](https://github.com/KashZod/devloop/issues).

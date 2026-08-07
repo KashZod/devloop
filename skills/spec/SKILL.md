@@ -11,8 +11,8 @@ Create a specification for the following: $ARGUMENTS
 
 Specifications clarify WHAT to build before implementation begins.
 Instead of discovering ambiguity mid-implementation (expensive),
-surface it upfront through structured exploration and clarification.
-This is the highest-leverage pattern for complex features.
+surface it upfront through structured exploration and clarification,
+where resolving it costs a question instead of a rewrite.
 
 ## Mapping to Claude Code Workflow
 
@@ -50,13 +50,13 @@ its own installation story), treat it as a product-level spec:
 - Acceptance criteria verify capability, not component details
 - Implementation chunking goes in Notes or during TDD, not as
   separate specs
-- Spec size will exceed the standard guideline — this is expected
+- Spec size will exceed the standard guideline, this is expected
 
 If a product spec exceeds 12 stories, consider splitting into a
 product spec (overview) + separate feature specs (details).
 
 Product specs with interacting capabilities need explicit
-interface contracts — file paths, data formats, handoff
+interface contracts, file paths, data formats, handoff
 expectations. Document these in Assumptions or a dedicated
 section. Without them, components may diverge on implicit
 conventions that break silently at integration time.
@@ -102,15 +102,15 @@ Phase 3 is skipped if no ambiguities are found.
   request + 1 layer of direct dependencies)
 - Trace the data flow through the application layers
 - Identify existing patterns, utilities, and conventions to reference
-- Note what already exists — don't spec what you can grep
+- Note what already exists, don't spec what you can grep
 
 **Greenfield projects:** If the codebase doesn't exist yet, explore
 the inputs that define WHAT to build: analysis docs, design docs,
 reference materials, domain knowledge files, and similar projects.
-The goal is the same — understand context before specifying — but
+The goal is the same, understand context before specifying, but
 the context lives in documents rather than code.
 
-**Context tip:** Steps 1.2 and 1.3 are independent — run them in
+**Context tip:** Steps 1.2 and 1.3 are independent, run them in
 parallel (e.g., use subagents) when the codebase is large or
 unfamiliar.
 
@@ -121,12 +121,12 @@ unfamiliar.
 - These inform edge case detection, affected component identification,
   and project-specific validation in Phase 4
 - If `PROJECT.md` doesn't exist or contains only template
-  placeholders (`YOUR_*_HERE`), proceed without it — the generic
+  placeholders (`YOUR_*_HERE`), proceed without it, the generic
   taxonomy categories still apply
 - If the project clearly needs a `PROJECT.md` (complex domain,
   multiple conventions, domain-specific concerns), note this in
   the spec's Notes section as a recommendation. Don't block the
-  spec process — create the spec first, suggest PROJECT.md after
+  spec process, create the spec first, suggest PROJECT.md after
 
 ### 1.4 Identify Affected Components
 
@@ -174,7 +174,7 @@ For each user story, write testable acceptance criteria:
 - Use Given/When/Then format for every criterion
 - P1 stories need both happy-path and error-path criteria
 - P2/P3 stories need at least one criterion each
-- Scan PROJECT.md Quality Standards while writing — criteria
+- Scan PROJECT.md Quality Standards while writing, criteria
   categories like accessibility are cheaper to add now than to
   discover in Phase 4 validation
 - See spec-template.md §Acceptance Criteria for complexity hints
@@ -209,11 +209,11 @@ materially impacts the spec:
 
 - Add `[NEEDS CLARIFICATION: <specific question>]` markers
 - **Maximum 5 markers** across the entire spec
-- Prioritize by impact — see
+- Prioritize by impact, see
   [clarification-taxonomy.md §Prioritization](references/clarification-taxonomy.md)
   for the full ranking
 - Make informed guesses for everything else (document in Assumptions)
-- Write the "Out of Scope" section — at least one item for medium+
+- Write the "Out of Scope" section, at least one item for medium+
   features
 
 ### 2.7 Write Spec File
@@ -224,10 +224,10 @@ materially impacts the spec:
 - Include all sections from the template
 - Set frontmatter status to `Draft`
 - **Size check:** Standard features should target ~80-150 lines
-  before Clarifications. If significantly over, reconsider scope —
+  before Clarifications. If significantly over, reconsider scope,
   it may be multiple features. Apply scope negotiation (see §When
   to Use). Product-level specs (see §Product vs feature) naturally
-  exceed this — up to ~300 lines is expected for products with
+  exceed this, up to ~300 lines is expected for products with
   6-12 user stories
 
 ---
@@ -241,10 +241,10 @@ Report: "No critical ambiguities detected. Skipping clarification."
 
 From the `[NEEDS CLARIFICATION]` markers:
 
-- Rank by (impact x uncertainty) — highest first
+- Rank by (impact x uncertainty), highest first
 - Select up to 5 for the question queue
 - Each question must materially affect implementation or testing
-- Never reveal upcoming questions — one at a time only
+- Never reveal upcoming questions, one at a time only
 
 ### 3.2 Interactive Questioning Loop
 
@@ -273,7 +273,7 @@ For each question in the queue:
 6. **Handle scope changes:** If the user's answer introduces new
    scope (new scenarios, new capabilities, new actors), update
    affected stories and criteria before proceeding. Treat the
-   answer as a mini re-spec of the affected section — don't just
+   answer as a mini re-spec of the affected section, don't just
    record it and move on
 7. **Proceed to next question** or stop
 
@@ -312,14 +312,14 @@ for the 8-point criteria.
 
 For each point, verify with specific evidence from the spec:
 
-1. **Testability** — Every Given/When/Then maps to a test assertion
-2. **Completeness** — Every story has criteria; every P1 has error paths
-3. **Clarity** — No vague adjectives without measurable targets
-4. **Scope** — Out of Scope section exists and is non-empty
-5. **Independence** — P1 stories deliver standalone value
-6. **Priority** — P1/P2/P3 assigned; P1 set forms coherent MVP
-7. **Edge Cases** — Failure modes identified per P1 story
-8. **Resolution** — No unresolved `[NEEDS CLARIFICATION]` markers
+1. **Testability**, Every Given/When/Then maps to a test assertion
+2. **Completeness**, Every story has criteria; every P1 has error paths
+3. **Clarity**, No vague adjectives without measurable targets
+4. **Scope**, Out of Scope section exists and is non-empty
+5. **Independence**, P1 stories deliver standalone value
+6. **Priority**, P1/P2/P3 assigned; P1 set forms coherent MVP
+7. **Edge Cases**, Failure modes identified per P1 story
+8. **Resolution**, No unresolved `[NEEDS CLARIFICATION]` markers
 
 ### 4.3 Project-Specific Validation
 
@@ -373,7 +373,7 @@ Next: /implement <feature> (spec: docs/specs/<feature>.md)
 ```
 
 If the spec has warnings, note them:
-"The spec has N unresolved warnings — review the Notes section
+"The spec has N unresolved warnings, review the Notes section
 before starting implementation."
 
 **Non-code projects:** If the spec covers content, configuration,
@@ -391,10 +391,10 @@ If the user challenges a fundamental assumption after the spec is
 marked Ready (e.g., changing the architecture, switching platforms,
 redefining scope), handle it as a controlled re-spec:
 
-1. **Acknowledge the pivot** — don't defend the existing spec
-2. **Assess impact** — which stories survive the pivot vs need rewriting?
+1. **Acknowledge the pivot**, don't defend the existing spec
+2. **Assess impact**, which stories survive the pivot vs need rewriting?
 3. **Bump `spec-version`** and update the frontmatter
-4. **Rewrite affected sections** — stories, criteria, affected components
+4. **Rewrite affected sections**, stories, criteria, affected components
 5. **Re-run Phase 4 validation** on the updated spec
 6. **Log the pivot** in Clarifications: `- Pivot: <old> → <new> (<reason>)`
 
@@ -410,18 +410,18 @@ edge cases, and clarifications are preserved.
    it tests nothing. "System handles errors" is not testable.
    "When API returns 500, user sees error banner with retry button" is
 2. **Edge Cases Come from the Domain, Not the Feature** -
-   The most dangerous edge cases aren't in the feature itself — they're
+   The most dangerous edge cases aren't in the feature itself, they're
    in how the feature interacts with existing domain rules. A "delete"
    feature seems simple until you consider: shared items, items in
    progress, items with dependencies, undo expectations, sync conflicts
 3. **The Spec Is Not the Plan** -
    Specs define WHAT and WHY. Plans define HOW. If you catch yourself
-   writing framework names, file paths, or algorithm choices, stop —
+   writing framework names, file paths, or algorithm choices, stop,
    those belong in TDD, not here
 4. **Three Clarifications Beat Ten Assumptions** -
    A single well-chosen clarification question that resolves a P1 scope
    ambiguity saves more rework than ten documented assumptions. The
-   max-5 limit forces prioritization — use it on what matters most
+   max-5 limit forces prioritization, use it on what matters most
 5. **"Simple" Features Hide Domain Complexity** -
    "Add search" sounds simple until you consider: fuzzy matching,
    pagination, permissions filtering, empty states, indexing strategy.
@@ -446,7 +446,7 @@ edge cases, and clarifications are preserved.
     Phase 4 catches missing criteria categories (accessibility, offline
     behavior) but fixing them there costs a validation iteration. Scan
     PROJECT.md Quality Standards during Phase 2.3 while writing criteria
-    — it's cheaper to include them upfront than to discover them late
+   , it's cheaper to include them upfront than to discover them late
 
 ---
 
@@ -454,7 +454,7 @@ edge cases, and clarifications are preserved.
 
 Specs complete in one session. There is no tracker or session
 resumption mechanism. To revisit a feature's spec later, re-run
-`/spec` — Phase 1.5 detects the existing file and offers update
+`/spec`, Phase 1.5 detects the existing file and offers update
 or fresh start.
 
 ---

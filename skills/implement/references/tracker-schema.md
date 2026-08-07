@@ -97,12 +97,12 @@ Rules:
 A resuming session reads the chunk's required fields directly:
 `name` (what), `files_create` + `files_modify` (where), `tdd` (test
 conditions), `acceptance_criteria` (pass/fail). Add a `notes` entry
-when there's something a resuming session can't infer from those —
+when there's something a resuming session can't infer from those,
 typically a `PATTERN: file:function` hint or a `DO NOT: ...` pitfall.
 
 ```json
 {
-  "notes": "PATTERN: follow getItemsByDate() in SqlItemRepository. DO NOT change service return types — wrap result internally."
+  "notes": "PATTERN: follow getItemsByDate() in SqlItemRepository. DO NOT change service return types, wrap result internally."
 }
 ```
 

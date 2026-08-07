@@ -1,8 +1,8 @@
 # PROJECT.md - Project-Specific Configuration
 
 Copy this file into your skill directory and fill in the sections
-for your project. The /implement skill references this file for
-commands, patterns, and conventions that vary between projects.
+for your project. The TDD skill references this file for commands,
+patterns, and conventions that vary between projects.
 
 ---
 
