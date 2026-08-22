@@ -17,7 +17,7 @@ The loop is not one-way: if a review finding shows the plan itself was wrong, /i
 - **review-impl** answers "does the code match the plan?" It marks each acceptance criterion CONFIRMED / PLAUSIBLE / REFUTED, each backed by a quoted test line.
 - **red-team** answers "is the code wrong or wasteful?" It hunts bugs across five angles regardless of the plan, recall-biased first, then verifies each finding and drops false positives. Modes: bugs, cleanup, both. On a large diff the red-team half splits into parallel bug and cleanup passes; on a small one it stays a single pass. It can be invoked directly on any diff, with no tracker.
 
-The point of the layer: the reviewer never wrote the code, so "done" arrives with evidence attached instead of a self-report.
+The point of the layer: the reviewer never wrote the code, so a pass comes with evidence instead of a self-report.
 
 ## Install
 

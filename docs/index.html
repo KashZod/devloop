@@ -401,13 +401,13 @@
     <div class="wrap">
       <span class="kicker">The problem</span>
       <h2 class="h2" style="max-width:20ch;">"Done" is usually a self-report</h2>
-      <p class="lede measure" style="margin-top:18px;">Ask an agent to build a feature and it hands you working-looking code and a confident summary. What one prompt cannot give you is the part around the code: a second look from a context that did not just write it.</p>
+      <p class="lede measure" style="margin-top:18px;">Ask an agent to build a feature and it hands you working-looking code and a confident summary. What it cannot give you is a second look from a context that did not just write it.</p>
 
       <div class="contrast">
         <div class="cchip low">
           <span class="tag">reads as: done</span>
           <p class="said">"I verified it works."</p>
-          <p class="body">The same context that wrote the code, grading its own work. Confident, and blind to the assumptions it just made.</p>
+          <p class="body">The same context that wrote the code, grading its own work against the assumptions it just made.</p>
         </div>
         <div class="cchip high">
           <span class="tag">reads as: done</span>
@@ -416,7 +416,7 @@
         </div>
       </div>
 
-      <p class="aside">One prompt also runs three decisions together: <b>what</b> to build, <b>how</b> to build it, and the code itself. A misread requirement gets decided and written as code in the same breath, where it is most expensive to unwind. devloop pulls the three apart and puts a gate between each.</p>
+      <p class="aside">One prompt also runs three decisions together: <b>what</b> to build, <b>how</b> to build it, and the code itself. A misread requirement gets decided and written into code at once, where it is hardest to undo. devloop pulls the three apart and puts a gate between each.</p>
     </div>
   </section>
 
@@ -451,7 +451,7 @@
         </div>
       </div>
 
-      <p class="conv-note"><b>The loop is not one-way.</b> If a review finding shows the plan itself was wrong, not just the code, /implement appends corrective chunks and re-runs the plan gate in place, then keeps building. The plan and the code converge instead of drifting apart.</p>
+      <p class="conv-note"><b>The loop is not one-way.</b> If a review finding shows the plan itself was wrong, not just the code, /implement appends corrective chunks and re-runs the plan gate in place, then keeps building, so the plan and the code stay in sync.</p>
     </div>
   </section>
 
@@ -476,7 +476,7 @@
         <div class="rcard">
           <span class="role">red-team · correctness</span>
           <h3>Is it <span class="q">wrong or wasteful?</span></h3>
-          <p class="body">Hunts bugs across five angles regardless of the plan, recall-biased first so nothing is missed, then verifies each finding and drops the false positives.</p>
+          <p class="body">Hunts bugs across five angles regardless of the plan, recall-biased first, then verifies each finding and drops the false positives.</p>
           <div class="verdict-legend">
             <span class="vtag">bugs</span>
             <span class="vtag">cleanup</span>
@@ -495,7 +495,7 @@
       <div>
         <span class="kicker">Why it holds</span>
         <h2 class="h2">The reviewer never wrote the code</h2>
-        <p class="lede">That is the whole point. A context that authored the plan or the diff cannot grade it without grading its own assumptions. devloop runs each gate somewhere else, so "done" arrives with evidence attached, not a promise.</p>
+        <p class="lede">A context that wrote the plan or the diff grades its own assumptions along with the code. devloop runs each gate in a separate context, so a pass comes with evidence instead of a summary.</p>
         <div class="actions">
           <a class="btn btn-primary" href="#install">Get started</a>
           <a class="btn btn-on-dark" href="https://github.com/KashZod/devloop">Read the docs</a>
@@ -555,7 +555,7 @@
       <div class="faq">
         <details>
           <summary>What agent do I need to run it? <span class="plus">+</span></summary>
-          <div class="ans">Any coding agent that supports slash-command skills and can delegate to subagents. Claude Code and Codex both qualify and are what devloop runs on today. Subagent delegation is what lets each gate review in a context that did not write the code; on a harness without it the gates still run, but degrade to an in-context self-check, and the skills say so at that gate rather than pretending the independence still holds.</div>
+          <div class="ans">Any coding agent that supports slash-command skills and can delegate to subagents. Claude Code and Codex both qualify and are what devloop runs on today. Subagent delegation is what lets each gate review in a context that did not write the code; on a harness without it the gates still run, but as an in-context self-check, and the skills flag that at the gate.</div>
         </details>
         <details>
           <summary>Does it call a model or send my code anywhere? <span class="plus">+</span></summary>
