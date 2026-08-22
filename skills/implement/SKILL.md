@@ -61,7 +61,8 @@ Phase 3: Quality Verification
 
 Each phase must complete before the next begins. For multi-chunk
 features, Phase 2 repeats per chunk in dependency order. Gates are
-artifact-triggered: `plan_review: PASS` in the tracker unblocks Phase 2;
+artifact-triggered: a passing `plan_review` (`PASS` or
+`PASS-WITH-WARNINGS`) in the tracker unblocks Phase 2;
 all chunks complete triggers review-impl + red-team in Phase 3.
 
 ---
@@ -301,11 +302,10 @@ In parallel:
 - Use the red-team agent in mode: cleanup to review the changed files, report only (pass the tracker path)
 ```
 
-Complementary by design: `review-impl` checks conformance to intent
-(conservative, PASS when the plan is met); `red-team` checks correctness
-independent of intent (recall-biased, surfaces everything, then
-verifies). A bug conforming to a flawed plan is caught only by
-`red-team`; a correct-but-off-spec change only by `review-impl`.
+Complementary by design: `review-impl` is conservative (PASS once the
+plan is met); `red-team` is recall-biased (surfaces everything, then
+verifies). A bug conforming to a flawed plan is caught only by `red-team`;
+a correct-but-off-spec change only by `review-impl`.
 
 Merge findings. Address every `red-team` **FAIL** (CONFIRMED
 correctness) and every `review-impl` FAIL before completing; treat WARN
@@ -313,12 +313,11 @@ as a judgment call. Re-run the suite after any fix.
 
 **No project rule file?** When neither `.devloop/config.md` nor a project
 rules file (`CLAUDE.md`/`AGENTS.md`) exists, `review-impl` still defers
-standards and architecture to
-`red-team`, but `red-team`'s conventions angle has no rules to quote and
-returns nothing, so those concerns fall through the gap between the two
-agents. Cover them yourself: run checklist points 4 (Standards) and 7
-(Gaps, Architectural) as an in-context self-check so they are not silently
-dropped.
+standards and architecture to `red-team`, but `red-team`'s conventions
+angle has no rules to quote and returns nothing, so those concerns fall
+through the gap between the two agents. Cover them yourself: run checklist
+points 4 (Standards) and 7 (Gaps, Architectural) as an in-context
+self-check so they are not silently dropped.
 
 ### Converge (when a finding invalidates the plan or the spec)
 

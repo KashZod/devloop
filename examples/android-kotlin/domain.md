@@ -23,7 +23,7 @@ UI (Jetpack Compose) -> ViewModel -> Domain Layer (Coordinators, Readers) -> Roo
 
 ---
 
-## Domain-Specific Concerns (Validation Checklist §9)
+## Domain-Specific Concerns (Clarification Taxonomy §9)
 
 - [ ] Offline behavior: local operations work without network
 - [ ] Timezone handling: UTC storage, local display, DST transitions

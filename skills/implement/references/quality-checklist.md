@@ -122,7 +122,7 @@ platform conventions.
 - Check naming conventions (language style, package/module structure)
 - Verify architecture layers are respected
 
-**Project-specific standards:** See `.devloop/config.md` §Standards.
+**Project-specific standards:** See `.devloop/config.md` §Standards to Verify.
 
 ---
 
@@ -214,7 +214,7 @@ anchored on what you intended to build.
 - [ ] **Future migration**: Will this design need breaking changes
   later? Document the migration path
 
-**Platform-specific blindspots (see .devloop/config.md §Blindspots):**
+**Platform-specific blindspots (see .devloop/config.md §Blindspots to Check):**
 
 Common examples across platforms:
 - Web: CORS, CSP, XSS, accessibility, browser compat

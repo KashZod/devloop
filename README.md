@@ -212,8 +212,9 @@ project-config source.
 The fastest start is to copy the closest
 [`examples/<stack>/`](examples/) directory to `.devloop/` in your project:
 each holds a `config.md` and a `domain.md` for one stack
-(`typescript-node`, `python`, `rust`, `android-kotlin`). Each file is a
-template of `YOUR_*_HERE` placeholders; fill them in.
+(`typescript-node`, `python`, `rust`, `android-kotlin`). Each is a
+concrete example for that stack; copy the closest to `.devloop/` and adapt
+it to your project.
 
 **Commit `config.md` and `domain.md`** so the whole team shares one
 context. `.devloop/trackers/` holds in-progress work; commit it for

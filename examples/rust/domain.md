@@ -22,7 +22,7 @@ CLI arg parsing (clap) -> Command handlers -> Core library -> File system / netw
 
 ---
 
-## Domain-Specific Concerns (Validation Checklist §9)
+## Domain-Specific Concerns (Clarification Taxonomy §9)
 
 - [ ] Exit codes: 0 success, 1 general error, 2 usage error
 - [ ] Signal handling: SIGTERM/SIGINT for graceful shutdown

@@ -76,5 +76,14 @@ refactor: description
 ## Documentation Location
 
 ```text
-docs/
+docs/                # design docs, post-implementation notes
+```
+
+The spec and tracker directories are configured here too. Both have
+defaults, so this block is optional; set it to override where the loop
+reads and writes:
+
+```text
+spec-directory:    docs/specs/          # where /spec writes and /plan reads (default)
+tracker-directory: .devloop/trackers/   # where /plan writes impl-tracker-<feature>.json (default)
 ```

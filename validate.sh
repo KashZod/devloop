@@ -582,8 +582,8 @@ section "16. No em or en dashes in published files"
 
 # The repo uses standard punctuation, not em (U+2014) or en (U+2013) dashes.
 # Scan every published markdown file (core skill/agent prose plus the
-# top-level docs). evals/ and docs/ are not part of the release, so they are
-# out of scope. (Arrows U+2192 are used deliberately and are not flagged.)
+# top-level docs). docs/ is not part of the release, so it is out of scope.
+# (Arrows U+2192 are used deliberately and are not flagged.)
 em_dash_files=("${core_files[@]}" "README.md" "CHANGELOG.md" "PRIVACY.md")
 
 em_dash_found=false

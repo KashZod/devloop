@@ -24,7 +24,7 @@ Routes -> Controllers -> Services -> Repositories -> PostgreSQL
 
 ---
 
-## Domain-Specific Concerns (Validation Checklist §9)
+## Domain-Specific Concerns (Clarification Taxonomy §9)
 
 - [ ] CORS policy: cross-origin requests from frontend
 - [ ] Rate limiting: abuse prevention on public endpoints

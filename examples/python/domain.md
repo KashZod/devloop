@@ -25,7 +25,7 @@ URLs -> Views (or ViewSets) -> Services/Managers -> Models -> PostgreSQL
 
 ---
 
-## Domain-Specific Concerns (Validation Checklist §9)
+## Domain-Specific Concerns (Clarification Taxonomy §9)
 
 - [ ] N+1 queries: select_related/prefetch_related for related objects
 - [ ] Timezone-aware datetimes: USE_TZ=True, no naive datetimes
