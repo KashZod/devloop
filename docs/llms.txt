@@ -1,0 +1,32 @@
+# devloop
+
+> A test-driven development loop for agentic coding tools (Claude Code, Codex, and other harnesses that support subagent delegation). It splits an agent's one-shot "done" into three gated commands and adds independent review agents that grade work in a context that did not write it.
+
+devloop ships as plain markdown plus a bash validator: no runtime, no network calls, no service of its own. It runs inside the coding agent you already use and reads per-project context from a `.devloop/` folder (`config.md` for engineering, `domain.md` for domain knowledge).
+
+## The loop
+
+- **/spec**: clarify WHAT to build (user stories, acceptance criteria, edge cases). Gate: an 8-point spec-validation checklist.
+- **/plan**: decide HOW. Decompose the spec into ordered, dependency-aware chunks and write a JSON tracker that survives context resets. Gate: the `review-plan` agent, before any code is written.
+- **/implement**: BUILD each chunk test-first (red then green) against the plan. Gate: the `review-impl` (conformance) and `red-team` (correctness) agents, run in parallel and read-only.
+
+The loop is not one-way: if a review finding shows the plan itself was wrong, /implement appends corrective chunks and re-runs the plan gate in-session, so the plan and code converge.
+
+## The review layer
+
+- **review-impl** answers "does the code match the plan?" It marks each acceptance criterion CONFIRMED / PLAUSIBLE / REFUTED, each backed by a quoted test line.
+- **red-team** answers "is the code wrong or wasteful?" It hunts bugs across five angles regardless of the plan, recall-biased first, then verifies each finding and drops false positives. Modes: bugs, cleanup, both. On a large diff the red-team half splits into parallel bug and cleanup passes; on a small one it stays a single pass. It can be invoked directly on any diff, with no tracker.
+
+The point of the layer: the reviewer never wrote the code, so "done" arrives with evidence attached instead of a self-report.
+
+## Install
+
+- Claude Code: `/plugin marketplace add KashZod/devloop` then `/plugin install devloop@kashzod`
+- Codex: `codex plugin marketplace add KashZod/devloop` then `codex plugin add devloop@kashzod`
+
+## Links
+
+- Source: https://github.com/KashZod/devloop
+- Stack examples: https://github.com/KashZod/devloop/tree/main/examples
+- Changelog: https://github.com/KashZod/devloop/blob/main/CHANGELOG.md
+- License: Apache-2.0

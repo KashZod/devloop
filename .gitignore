@@ -8,8 +8,8 @@
 .idea/
 .vscode/
 
-# Working docs
-docs/
+# Working docs (local dogfooding state; the website lives in docs/)
+.local-docs/
 
 # devloop's own dev-time state (this repo dogfoods the convention it ships)
 .devloop/

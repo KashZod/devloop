@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>devloop: plan before code, prove before commit</title>
+<meta name="description" content="A test-driven development loop for agentic coding tools such as Claude Code and Codex. Three commands, three gates, with independent review agents that catch design bugs before you code and correctness bugs before you commit.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="devloop">
+<meta property="og:description" content="Plan before code, prove before commit. A gated, test-driven loop for coding agents, with independent review agents that never wrote the code they grade.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kashzod.github.io/devloop/">
+<meta property="og:image" content="https://kashzod.github.io/devloop/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="devloop: a gated pipeline from spec to plan to implement, with a review gate on every stage and a convergence loop back to the plan.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="devloop">
+<meta name="twitter:description" content="Plan before code, prove before commit. A gated, test-driven loop for coding agents.">
+<meta name="twitter:image" content="https://kashzod.github.io/devloop/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f6fc;
+    --surface: #ebeef8;
+    --card: #ffffff;
+    --text: #12172a;
+    --muted: #565d78;
+    --faint: #888ea9;
+    --line: color-mix(in srgb, #0b0f1e 12%, transparent);
+    --line-soft: color-mix(in srgb, #0b0f1e 7%, transparent);
+    --brand: #4f46e5;
+    --brand-deep: #3d34c9;
+    --brand-glow: #8f8cff;
+    --brand-tint: #e7e6fb;
+    --pass: #0f9d6b;
+    --fail: #e0503c;
+    --ink: #0a0e1c;
+    --ink-2: #101632;
+    --on-dark: #e7e9f6;
+    --on-dark-muted: #9297b7;
+    --on-dark-line: color-mix(in srgb, #e7e9f6 15%, transparent);
+    --grid: color-mix(in srgb, #4f46e5 12%, transparent);
+    --r: 16px;
+    --r-sm: 10px;
+    --r-pill: 999px;
+    --maxw: 1120px;
+    --ease: cubic-bezier(.2,.75,.25,1);
+    --font-disp: "Space Grotesk", system-ui, sans-serif;
+    --font-body: "IBM Plex Sans", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #080b16;
+      --surface: #0d1122;
+      --card: #0f1428;
+      --text: #e7e9f6;
+      --muted: #969cbb;
+      --faint: #666c8a;
+      --line: color-mix(in srgb, #e7e9f6 13%, transparent);
+      --line-soft: color-mix(in srgb, #e7e9f6 8%, transparent);
+      --ink: #05070f;
+      --ink-2: #0a0e1e;
+      --brand-tint: #191a35;
+      --grid: color-mix(in srgb, #8f8cff 13%, transparent);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .wrap { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: 26px; }
+  a { color: inherit; }
+  h1, h2, h3 { font-family: var(--font-disp); font-weight: 700; letter-spacing: -.02em; line-height: 1.05; margin: 0; }
+  p { margin: 0; }
+  code, .mono { font-family: var(--font-mono); font-variant-ligatures: none; }
+  ::selection { background: var(--brand-deep); color: #fff; }
+  :focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 3px; }
+
+  /* ---- nav ---- */
+  header.nav {
+    position: sticky; top: 0; z-index: 40;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .nav .wrap { display: flex; align-items: center; gap: 22px; height: 66px; }
+  .brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; font-family: var(--font-disp); font-weight: 700; font-size: 21px; letter-spacing: -.03em; }
+  .brand .mark { width: 30px; height: 30px; border-radius: 8px; display: block; }
+  .nav nav { display: flex; gap: 24px; margin-left: auto; }
+  .nav nav a { text-decoration: none; color: var(--muted); font-weight: 500; font-size: 15px; transition: color .16s var(--ease); }
+  .nav nav a:hover { color: var(--text); }
+  .nav .cta { margin-left: 6px; }
+  @media (max-width: 760px) { .nav nav { display: none; } }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: var(--font-body); font-weight: 600; font-size: 15px;
+    text-decoration: none; cursor: pointer;
+    padding: 11px 18px; border-radius: var(--r-pill);
+    border: 1px solid transparent; transition: transform .14s var(--ease), background .16s var(--ease), border-color .16s var(--ease);
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--brand-deep); color: #fff; box-shadow: 0 1px 0 color-mix(in srgb, #000 25%, transparent), 0 12px 26px -16px var(--brand); }
+  .btn-primary:hover { background: color-mix(in srgb, var(--brand-deep) 88%, #000); }
+  .btn-ghost { border-color: var(--line); color: var(--text); background: transparent; }
+  .btn-ghost:hover { border-color: var(--text); }
+  .btn-on-dark { border-color: var(--on-dark-line); color: var(--on-dark); }
+  .btn-on-dark:hover { border-color: var(--on-dark); }
+
+  section { padding-block: clamp(62px, 9vw, 112px); }
+  .kicker {
+    font-family: var(--font-mono); font-size: 12.5px; font-weight: 500;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--brand-deep);
+  }
+  @media (prefers-color-scheme: dark) { .kicker { color: var(--brand-glow); } }
+  .h2 { font-size: clamp(28px, 4vw, 43px); margin-top: 14px; }
+  .lede { color: var(--muted); font-size: clamp(18px, 2.1vw, 21px); line-height: 1.55; }
+  .measure { max-width: 60ch; }
+
+  /* ---- hero ---- */
+  .hero { padding-top: clamp(38px, 6vw, 70px); overflow: clip; }
+  .hero .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
+  @media (max-width: 920px) { .hero .grid { grid-template-columns: 1fr; } }
+  .hero h1 { font-size: clamp(40px, 6.6vw, 74px); font-weight: 700; margin-top: 18px; }
+  .hero h1 .accent { color: var(--brand-deep); }
+  @media (prefers-color-scheme: dark) { .hero h1 .accent { color: var(--brand-glow); } }
+  .hero .lede { margin-top: 22px; max-width: 46ch; }
+  .hero .actions { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .install-pill { margin-top: 22px; display: inline-flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 8px 8px 8px 18px; font-family: var(--font-mono); max-width: 100%; }
+  .install-pill .cmd { font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .install-pill .cmd::before { content: "> "; color: var(--brand-deep); }
+  .copy { border: 0; background: var(--brand-deep); color: #fff; border-radius: var(--r-pill); padding: 7px 15px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s var(--ease); flex: none; }
+  .copy:hover { background: color-mix(in srgb, var(--brand-deep) 88%, #000); }
+
+  .channels { margin-top: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; color: var(--muted); font-size: 14.5px; }
+  .channels .lbl { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+  .channels a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 1px; transition: color .15s, border-color .15s; }
+  .channels a:hover { color: var(--brand-deep); border-color: var(--brand); }
+
+  /* reveal on load */
+  .reveal { opacity: 0; transform: translateY(14px); }
+  .loaded .reveal { animation: rise .7s var(--ease) forwards; }
+  .loaded .reveal.d1 { animation-delay: .05s; }
+  .loaded .reveal.d2 { animation-delay: .12s; }
+  .loaded .reveal.d3 { animation-delay: .19s; }
+  .loaded .reveal.d4 { animation-delay: .27s; }
+  .loaded .reveal.d5 { animation-delay: .35s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  .no-js .reveal { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1 !important; transform: none !important; animation: none !important; }
+  }
+
+  /* ---- signature: pipeline schematic ---- */
+  .pipe-stage { position: relative; display: grid; place-items: center; min-height: 380px; }
+  .pipe-stage .grid-bg {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 88%);
+    mask-image: radial-gradient(closest-side, #000 55%, transparent 88%);
+    opacity: .8;
+  }
+  .pipe-stage .glow {
+    position: absolute; inset: 0; margin: auto; width: 74%; aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--brand-glow) 34%, transparent), transparent 72%);
+    filter: blur(8px); z-index: 0; pointer-events: none;
+  }
+  .pipe { position: relative; z-index: 1; width: min(100%, 380px); height: auto; }
+  .pipe .rail { stroke: var(--brand); }
+  .pipe .node { fill: var(--card); stroke: var(--brand); }
+  .pipe .node-num { fill: var(--brand-deep); font-family: var(--font-mono); font-weight: 600; }
+  .pipe .glyph { stroke: var(--brand); fill: none; }
+  .pipe .lab { fill: var(--text); font-family: var(--font-disp); font-weight: 600; }
+  .pipe .sub { fill: var(--muted); font-family: var(--font-mono); }
+  .pipe .back { stroke: var(--brand); fill: none; stroke-dasharray: 4 5; }
+  .pipe .back-lab { fill: var(--brand-deep); font-family: var(--font-mono); }
+  @media (prefers-color-scheme: dark) {
+    .pipe .node-num, .pipe .back-lab { fill: var(--brand-glow); }
+  }
+  .loaded .pipe .draw { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 1.1s var(--ease) .2s forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .pipe .draw { stroke-dashoffset: 0 !important; animation: none !important; }
+  }
+
+  /* ---- bands ---- */
+  .band { background: var(--surface); border-block: 1px solid var(--line-soft); }
+
+  /* ---- contrast chips ---- */
+  .contrast { margin-top: 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .contrast { grid-template-columns: 1fr; } }
+  .cchip { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 22px 24px; }
+  .cchip .tag { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+  .cchip .said { margin-top: 10px; font-family: var(--font-disp); font-weight: 600; font-size: 20px; }
+  .cchip p.body { margin-top: 9px; color: var(--muted); font-size: 15px; }
+  .cchip.low { border-left: 3px solid var(--faint); }
+  .cchip.high { border-left: 3px solid var(--brand); }
+  .aside { margin-top: 28px; color: var(--muted); font-size: 15.5px; max-width: 62ch; }
+  .aside b { color: var(--text); }
+
+  /* ---- steps (the loop) ---- */
+  .steps { margin-top: 42px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  @media (max-width: 860px) { .steps { grid-template-columns: 1fr; gap: 26px; } }
+  .step { position: relative; }
+  .step .num { font-family: var(--font-disp); font-weight: 700; font-size: 15px; width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; color: var(--brand-deep); border: 1.5px solid color-mix(in srgb, var(--brand) 42%, var(--line)); }
+  @media (prefers-color-scheme: dark) { .step .num { color: var(--brand-glow); } }
+  .step .cmd-tag { margin-top: 14px; display: inline-block; font-family: var(--font-mono); font-size: 12.5px; color: var(--brand-deep); background: var(--brand-tint); padding: 3px 9px; border-radius: var(--r-pill); }
+  @media (prefers-color-scheme: dark) { .step .cmd-tag { color: var(--brand-glow); } }
+  .step h3 { margin-top: 12px; font-size: 21px; }
+  .step p.body { margin-top: 9px; color: var(--muted); font-size: 15.5px; }
+  .step .gate { margin-top: 12px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+  .step .gate .g { color: var(--pass); }
+
+  .conv-note { margin-top: 34px; padding: 18px 22px; border-left: 3px solid var(--brand); background: var(--brand-tint); border-radius: 0 var(--r-sm) var(--r-sm) 0; font-size: 15.5px; max-width: 72ch; }
+  .conv-note b { color: var(--text); }
+
+  /* ---- reviews: two cards ---- */
+  .twocol { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .twocol { grid-template-columns: 1fr; } }
+  .rcard { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 26px; }
+  .rcard .role { font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .rcard h3 { margin-top: 8px; font-size: 22px; }
+  .rcard h3 .q { color: var(--brand-deep); }
+  @media (prefers-color-scheme: dark) { .rcard h3 .q { color: var(--brand-glow); } }
+  .rcard p.body { margin-top: 12px; color: var(--muted); font-size: 15.5px; }
+  .verdict-legend { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .vtag { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; padding: 3px 9px; border-radius: var(--r-pill); border: 1px solid var(--line); color: var(--muted); }
+  .split-note { margin-top: 20px; color: var(--muted); font-size: 15px; max-width: 74ch; }
+
+  /* ---- dark band + verdict demo ---- */
+  .dark { background: var(--ink); color: var(--on-dark); }
+  .dark .kicker { color: var(--brand-glow); }
+  .dark h2 { color: var(--on-dark); }
+  .dark .split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30px, 5vw, 60px); align-items: center; }
+  @media (max-width: 900px) { .dark .split { grid-template-columns: 1fr; } }
+  .dark .lede { color: var(--on-dark-muted); max-width: 42ch; margin-top: 18px; }
+  .dark .actions { margin-top: 26px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .gatecard { background: var(--ink-2); border: 1px solid var(--on-dark-line); border-radius: var(--r); overflow: hidden; box-shadow: 0 30px 60px -30px rgba(0,0,0,.6); }
+  .gc-head { display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-bottom: 1px solid var(--on-dark-line); font-family: var(--font-mono); font-size: 13px; color: var(--on-dark-muted); }
+  .gc-head .dots { display: flex; gap: 6px; }
+  .gc-head .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--on-dark-line); display: block; }
+  .gc-body { padding: 22px 20px; }
+  .gc-claim { font-family: var(--font-disp); font-weight: 600; font-size: 19px; color: var(--on-dark); line-height: 1.3; }
+  .gc-rows { margin-top: 20px; display: grid; gap: 12px; }
+  .gc-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; font-size: 14.5px; }
+  .gc-row .lab { color: var(--on-dark-muted); font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; }
+  .gc-row .val { color: var(--on-dark); font-weight: 500; }
+  .gc-row .rung { font-family: var(--font-mono); font-size: 11.5px; border: 1px solid var(--on-dark-line); border-radius: var(--r-pill); padding: 2px 10px; white-space: nowrap; }
+  .gc-row .rung.pass { color: var(--pass); border-color: color-mix(in srgb, var(--pass) 55%, transparent); }
+  .gc-row .rung.fail { color: #ff9c8c; border-color: color-mix(in srgb, var(--fail) 55%, transparent); }
+  @media (max-width: 460px) { .gc-row { grid-template-columns: 1fr; gap: 3px; } .gc-row .rung { justify-self: start; } }
+  .gc-verdict { margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--on-dark-line); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .verdict-pill { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-weight: 500; font-size: 13px; letter-spacing: .06em; padding: 7px 14px; border-radius: var(--r-pill); background: color-mix(in srgb, var(--fail) 20%, transparent); color: #ffb3a3; border: 1px solid color-mix(in srgb, var(--fail) 52%, transparent); }
+  .verdict-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fail); box-shadow: 0 0 0 3px color-mix(in srgb, var(--fail) 25%, transparent); }
+  .gc-why { color: var(--on-dark-muted); font-size: 13.5px; }
+
+  /* ---- install ---- */
+  .installgrid { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .installgrid { grid-template-columns: 1fr; } }
+  .icard { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 24px; }
+  .icard .harness { display: flex; align-items: center; gap: 10px; font-family: var(--font-disp); font-weight: 600; font-size: 18px; }
+  .icard .harness .badge { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); }
+  .cmdline { margin-top: 14px; display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--r-sm); padding: 10px 10px 10px 14px; }
+  .cmdline code { font-size: 13.5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cmdline code::before { content: "> "; color: var(--brand-deep); }
+  .cmdline .copy { padding: 5px 12px; font-size: 12px; }
+  .setup { margin-top: 30px; color: var(--muted); font-size: 15.5px; max-width: 74ch; }
+  .setup code { background: var(--surface); border: 1px solid var(--line-soft); border-radius: 5px; padding: 1px 6px; font-size: 13.5px; color: var(--text); }
+  .setup a { color: var(--brand-deep); text-decoration: none; border-bottom: 1px solid var(--line); }
+  @media (prefers-color-scheme: dark) { .setup a { color: var(--brand-glow); } }
+
+  /* ---- faq ---- */
+  .faq { display: grid; margin-top: 34px; border-top: 1px solid var(--line); }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary { list-style: none; cursor: pointer; padding: 20px 4px; display: flex; align-items: center; gap: 14px; font-family: var(--font-disp); font-weight: 600; font-size: 18px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary .plus { margin-left: auto; color: var(--brand-deep); transition: transform .2s var(--ease); font-family: var(--font-mono); }
+  @media (prefers-color-scheme: dark) { .faq summary .plus { color: var(--brand-glow); } }
+  .faq details[open] summary .plus { transform: rotate(45deg); }
+  .faq .ans { padding: 0 4px 22px; color: var(--muted); max-width: 70ch; }
+  .faq .ans code { font-family: var(--font-mono); font-size: 13.5px; color: var(--text); }
+
+  /* ---- footer ---- */
+  footer.foot { background: var(--ink); color: var(--on-dark-muted); padding-block: 52px; }
+  footer.foot .wrap { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; }
+  footer.foot .brand { color: var(--on-dark); }
+  footer.foot .links { margin-left: auto; display: flex; gap: 24px; flex-wrap: wrap; }
+  footer.foot a { color: var(--on-dark-muted); text-decoration: none; font-size: 15px; }
+  footer.foot a:hover { color: var(--on-dark); }
+  footer.foot .fine { flex-basis: 100%; font-size: 13px; color: var(--faint); border-top: 1px solid var(--on-dark-line); padding-top: 22px; line-height: 1.7; }
+  footer.foot .fine a { color: var(--on-dark-muted); border-bottom: 1px solid var(--on-dark-line); }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+</style>
+</head>
+<body class="no-js">
+<script>document.body.classList.remove('no-js');</script>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="devloop home">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0a0e1c"/><g fill="none" stroke="#8f8cff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="9" r="1.6" fill="#8f8cff" stroke="none"/><circle cx="11" cy="16" r="1.6" fill="#8f8cff" stroke="none"/><circle cx="11" cy="23" r="1.6" fill="#8f8cff" stroke="none"/><path d="M11 9h9M11 16h9M11 23h9"/><path d="M23 23c3.4 0 3.4-14 0-14" opacity=".9"/><path d="M25 6.5 23 9l2.6 1.4"/></g></svg>
+      devloop
+    </a>
+    <nav>
+      <a href="#why">Why</a>
+      <a href="#loop">The loop</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/KashZod/devloop">GitHub</a>
+    </nav>
+    <a class="btn btn-primary cta" href="#install">Get started</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap grid">
+      <div>
+        <span class="kicker reveal d1">Test-driven loop for coding agents</span>
+        <h1 class="reveal d2">Plan before code. <span class="accent">Prove</span> before commit.</h1>
+        <p class="lede reveal d3">devloop turns a coding agent's one-shot "done" into three gated steps. You specify, it plans, it builds with tests, and independent review agents catch design bugs before any code is written and correctness bugs before anything ships.</p>
+        <div class="install-pill reveal d4">
+          <code class="cmd">/plugin marketplace add KashZod/devloop</code>
+          <button class="copy" type="button" aria-label="Copy install command" onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText('/plugin marketplace add KashZod/devloop').then(()=>{this.textContent='copied';setTimeout(()=>this.textContent='copy',1400);})">copy</button>
+        </div>
+        <div class="channels reveal d4">
+          <span class="lbl">also</span>
+          <a href="#install">Codex install</a>
+          <a href="https://github.com/KashZod/devloop/tree/main/examples">Stack examples</a>
+          <a href="https://github.com/KashZod/devloop/blob/main/CHANGELOG.md">Changelog</a>
+          <a href="https://github.com/KashZod/devloop">Source and docs</a>
+        </div>
+        <div class="actions reveal d5">
+          <a class="btn btn-ghost" href="#loop">See the loop</a>
+        </div>
+      </div>
+
+      <div class="pipe-stage reveal d3" aria-hidden="true">
+        <span class="grid-bg"></span>
+        <span class="glow"></span>
+        <svg class="pipe" viewBox="0 0 380 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- convergence back-edge: implement -> plan -->
+          <path class="back draw" style="--len:230" d="M56 300 C 12 288, 12 176, 54 154" stroke-width="2"/>
+          <path class="back" d="M54 154 l-8 -2 3 8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <text class="back-lab" x="6" y="230" font-size="11" transform="rotate(-90 6 230)">converge</text>
+
+          <!-- spine -->
+          <path class="rail draw" style="--len:300" d="M72 62 V 338" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+
+          <!-- node 1: spec -->
+          <circle class="node" cx="72" cy="70" r="17" stroke-width="2.4"/>
+          <text class="node-num" x="72" y="75" font-size="15" text-anchor="middle">1</text>
+          <text class="lab" x="102" y="66" font-size="18">spec</text>
+          <text class="sub" x="102" y="84" font-size="11">clarify WHAT · 8-point gate</text>
+
+          <!-- gate 1 -->
+          <g transform="translate(72 133)"><rect class="glyph" x="-9" y="-9" width="18" height="18" rx="4" transform="rotate(45)" stroke-width="2"/><path class="glyph" d="M-4 0 l3 3 l6 -7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+          <!-- node 2: plan -->
+          <circle class="node" cx="72" cy="196" r="17" stroke-width="2.4"/>
+          <text class="node-num" x="72" y="201" font-size="15" text-anchor="middle">2</text>
+          <text class="lab" x="102" y="192" font-size="18">plan</text>
+          <text class="sub" x="102" y="210" font-size="11">decide HOW · plan review</text>
+
+          <!-- gate 2 -->
+          <g transform="translate(72 259)"><rect class="glyph" x="-9" y="-9" width="18" height="18" rx="4" transform="rotate(45)" stroke-width="2"/><path class="glyph" d="M-4 0 l3 3 l6 -7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+          <!-- node 3: implement -->
+          <circle class="node" cx="72" cy="322" r="17" stroke-width="2.4"/>
+          <text class="node-num" x="72" y="327" font-size="15" text-anchor="middle">3</text>
+          <text class="lab" x="102" y="318" font-size="18">implement</text>
+          <text class="sub" x="102" y="336" font-size="11">build with TDD · review + red-team</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM / WHY -->
+  <section class="band" id="why">
+    <div class="wrap">
+      <span class="kicker">The problem</span>
+      <h2 class="h2" style="max-width:20ch;">"Done" is usually a self-report</h2>
+      <p class="lede measure" style="margin-top:18px;">Ask an agent to build a feature and it hands you working-looking code and a confident summary. What one prompt cannot give you is the part around the code: a second look from a context that did not just write it.</p>
+
+      <div class="contrast">
+        <div class="cchip low">
+          <span class="tag">reads as: done</span>
+          <p class="said">"I verified it works."</p>
+          <p class="body">The same context that wrote the code, grading its own work. Confident, and blind to the assumptions it just made.</p>
+        </div>
+        <div class="cchip high">
+          <span class="tag">reads as: done</span>
+          <p class="said">"An independent agent reviewed the diff."</p>
+          <p class="body">A reviewer that never saw the code being written, quoting the test line that proves each acceptance criterion.</p>
+        </div>
+      </div>
+
+      <p class="aside">One prompt also runs three decisions together: <b>what</b> to build, <b>how</b> to build it, and the code itself. A misread requirement gets decided and written as code in the same breath, where it is most expensive to unwind. devloop pulls the three apart and puts a gate between each.</p>
+    </div>
+  </section>
+
+  <!-- THE LOOP -->
+  <section id="loop">
+    <div class="wrap">
+      <span class="kicker">The loop</span>
+      <h2 class="h2">Three commands, three gates</h2>
+      <p class="lede measure" style="margin-top:18px;">One command per decision, each with a hard gate that has to pass before the next begins.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <span class="cmd-tag">/spec</span>
+          <h3>Clarify what to build</h3>
+          <p class="body">Turn a request into user stories, acceptance criteria, and edge cases. Nothing gets planned on a vague spec.</p>
+          <p class="gate"><span class="g">&check;</span> gate: 8-point spec checklist</p>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <span class="cmd-tag">/plan</span>
+          <h3>Decide how to build it</h3>
+          <p class="body">Decompose the spec into an ordered, dependency-aware set of chunks and a JSON tracker that survives context resets.</p>
+          <p class="gate"><span class="g">&check;</span> gate: review-plan agent, before any code</p>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <span class="cmd-tag">/implement</span>
+          <h3>Build it, test first</h3>
+          <p class="body">Work each chunk red then green: a failing test, then the code that passes it, against the plan.</p>
+          <p class="gate"><span class="g">&check;</span> gate: review-impl + red-team agents</p>
+        </div>
+      </div>
+
+      <p class="conv-note"><b>The loop is not one-way.</b> If a review finding shows the plan itself was wrong, not just the code, /implement appends corrective chunks and re-runs the plan gate in place, then keeps building. The plan and the code converge instead of drifting apart.</p>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="band" id="reviews">
+    <div class="wrap">
+      <span class="kicker">The review layer</span>
+      <h2 class="h2">Two reviews at the end. No overlap.</h2>
+      <p class="lede measure" style="margin-top:18px;">When the chunks are done, two independent agents read the diff in a context that did not write it. They answer different questions, so nothing falls between them.</p>
+
+      <div class="twocol">
+        <div class="rcard">
+          <span class="role">review-impl · conformance</span>
+          <h3>Does it <span class="q">match the plan?</span></h3>
+          <p class="body">Checks that the code does what was planned and that a test proves each acceptance criterion. Every criterion is marked, each backed by a quoted line.</p>
+          <div class="verdict-legend">
+            <span class="vtag">CONFIRMED</span>
+            <span class="vtag">PLAUSIBLE</span>
+            <span class="vtag">REFUTED</span>
+          </div>
+        </div>
+        <div class="rcard">
+          <span class="role">red-team · correctness</span>
+          <h3>Is it <span class="q">wrong or wasteful?</span></h3>
+          <p class="body">Hunts bugs across five angles regardless of the plan, recall-biased first so nothing is missed, then verifies each finding and drops the false positives.</p>
+          <div class="verdict-legend">
+            <span class="vtag">bugs</span>
+            <span class="vtag">cleanup</span>
+            <span class="vtag">verified</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="split-note">A bug that faithfully implements a flawed plan is caught only by red-team; a correct but off-spec change only by review-impl. On a large, multi-file diff the red-team half splits into a focused bug pass and a focused cleanup pass in parallel; on a small one it stays a single pass. Either way the whole gate is read-only.</p>
+    </div>
+  </section>
+
+  <!-- WHY IT HOLDS / DARK -->
+  <section class="dark">
+    <div class="wrap split">
+      <div>
+        <span class="kicker">Why it holds</span>
+        <h2 class="h2">The reviewer never wrote the code</h2>
+        <p class="lede">That is the whole point. A context that authored the plan or the diff cannot grade it without grading its own assumptions. devloop runs each gate somewhere else, so "done" arrives with evidence attached, not a promise.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#install">Get started</a>
+          <a class="btn btn-on-dark" href="https://github.com/KashZod/devloop">Read the docs</a>
+        </div>
+      </div>
+
+      <div class="gatecard" role="img" aria-label="A quality gate result. The claim: added refresh-token rotation, all tests green. Conformance passed: the code matches the plan and every criterion has a test. Correctness failed: red-team confirmed that an expired token is still accepted on the retry path. Verdict: blocked, fix before commit.">
+        <div class="gc-head">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span>quality gate · /implement phase 3</span>
+        </div>
+        <div class="gc-body">
+          <p class="gc-claim">"Added refresh-token rotation. All tests green."</p>
+          <div class="gc-rows">
+            <div class="gc-row"><span class="lab">conformance</span><span class="val">matches the plan, every criterion has a test</span><span class="rung pass">review-impl · PASS</span></div>
+            <div class="gc-row"><span class="lab">correctness</span><span class="val">expired token still accepted on the retry path</span><span class="rung fail">red-team · CONFIRMED</span></div>
+          </div>
+          <div class="gc-verdict">
+            <span class="verdict-pill"><span class="dot"></span>BLOCKED · fix before commit</span>
+            <span class="gc-why">green tests, but a real bug the plan never named</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section id="install">
+    <div class="wrap">
+      <span class="kicker">Install</span>
+      <h2 class="h2">Add it to your agent in two commands</h2>
+      <p class="lede measure" style="margin-top:18px;">devloop ships as a plugin over a git marketplace. The same three commands power both harnesses.</p>
+
+      <div class="installgrid">
+        <div class="icard">
+          <div class="harness"><span class="badge"></span> Claude Code</div>
+          <div class="cmdline"><code>/plugin marketplace add KashZod/devloop</code><button class="copy" type="button" aria-label="Copy command" onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText('/plugin marketplace add KashZod/devloop').then(()=>{this.textContent='copied';setTimeout(()=>this.textContent='copy',1400);})">copy</button></div>
+          <div class="cmdline"><code>/plugin install devloop@kashzod</code><button class="copy" type="button" aria-label="Copy command" onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText('/plugin install devloop@kashzod').then(()=>{this.textContent='copied';setTimeout(()=>this.textContent='copy',1400);})">copy</button></div>
+        </div>
+        <div class="icard">
+          <div class="harness"><span class="badge"></span> Codex</div>
+          <div class="cmdline"><code>codex plugin marketplace add KashZod/devloop</code><button class="copy" type="button" aria-label="Copy command" onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText('codex plugin marketplace add KashZod/devloop').then(()=>{this.textContent='copied';setTimeout(()=>this.textContent='copy',1400);})">copy</button></div>
+          <div class="cmdline"><code>codex plugin add devloop@kashzod</code><button class="copy" type="button" aria-label="Copy command" onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText('codex plugin add devloop@kashzod').then(()=>{this.textContent='copied';setTimeout(()=>this.textContent='copy',1400);})">copy</button></div>
+        </div>
+      </div>
+
+      <p class="setup">Then give the loop project context: drop a <code>.devloop/</code> folder at your project root with <code>config.md</code> (build and test commands, architecture, standards) and <code>domain.md</code> (domain knowledge). The fastest start is to copy the closest <a href="https://github.com/KashZod/devloop/tree/main/examples">examples/&lt;stack&gt;</a> directory. The skills read <code>.devloop/</code> from your project, so a plugin install stays read-only in its cache.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="band" id="faq">
+    <div class="wrap">
+      <span class="kicker">Questions</span>
+      <h2 class="h2">Before you install</h2>
+
+      <div class="faq">
+        <details>
+          <summary>Do I need Claude Code specifically? <span class="plus">+</span></summary>
+          <div class="ans">No. The loop is harness-agnostic: it runs on Claude Code and Codex today, and the gates spawn review agents wherever a harness supports delegation. On a harness with no subagent capability, each gate degrades to an in-context self-check and the skills say so at that gate, rather than pretending the independence still holds.</div>
+        </details>
+        <details>
+          <summary>Does it call a model or send my code anywhere? <span class="plus">+</span></summary>
+          <div class="ans">No. devloop ships only markdown and a bash validator, with no runtime dependencies and no service of its own. It runs inside the agent you already use; any model cost lives with that agent, which is yours.</div>
+        </details>
+        <details>
+          <summary>How is this different from just prompting the agent well? <span class="plus">+</span></summary>
+          <div class="ans">A good prompt lives in your head and drifts from run to run. devloop separates what, how, and build into three gated steps, runs review in a context that did not write the code, persists a tracker so work survives resets, and ships as a versioned artifact that behaves the same across projects.</div>
+        </details>
+        <details>
+          <summary>What if my project has no tests yet? <span class="plus">+</span></summary>
+          <div class="ans">The loop is test-first by construction. Each chunk starts from a failing test, then the code that turns it green. You end up with tests because writing them is how the work gets done, not a chore bolted on after.</div>
+        </details>
+        <details>
+          <summary>Can I review a random diff with no plan? <span class="plus">+</span></summary>
+          <div class="ans">Yes. Invoke the <code>red-team</code> agent directly on a hotfix or someone else's branch. It is plan-agnostic and discovers the project's standards at runtime, so it does not need a tracker to review against.</div>
+        </details>
+        <details>
+          <summary>Does it lock me in? <span class="plus">+</span></summary>
+          <div class="ans">No. It is plain files under an Apache-2.0 license. Install it from the marketplace, or vendor <code>skills/</code> and <code>agents/</code> into your own project. Remove it and your code is untouched.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="devloop home">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0a0e1c"/><g fill="none" stroke="#8f8cff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="9" r="1.6" fill="#8f8cff" stroke="none"/><circle cx="11" cy="16" r="1.6" fill="#8f8cff" stroke="none"/><circle cx="11" cy="23" r="1.6" fill="#8f8cff" stroke="none"/><path d="M11 9h9M11 16h9M11 23h9"/><path d="M23 23c3.4 0 3.4-14 0-14" opacity=".9"/><path d="M25 6.5 23 9l2.6 1.4"/></g></svg>
+      devloop
+    </a>
+    <div class="links">
+      <a href="https://github.com/KashZod/devloop">GitHub</a>
+      <a href="https://github.com/KashZod/devloop/releases">Releases</a>
+      <a href="https://github.com/KashZod/devloop/blob/main/LICENSE">Apache-2.0</a>
+    </div>
+    <div class="fine">
+      Plan before code, prove before commit. Open source under Apache-2.0, works with Claude Code, Codex, and other agents.<br>
+      Pairs with <a href="https://rung-dev.github.io/">rung</a> for proof that the checks actually ran.
+    </div>
+  </div>
+</footer>
+
+<script>
+  requestAnimationFrame(function(){ document.body.classList.add('loaded'); });
+</script>
+</body>
+</html>
