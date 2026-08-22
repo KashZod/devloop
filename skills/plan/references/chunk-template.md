@@ -130,7 +130,8 @@ reference or a `DO NOT: ...` pitfall.
 
 > If this chunk introduced hoisted state, a `useEffect`/`LaunchedEffect`,
 > or input transformation, it would be a UI: state-holder chunk and need a
-> test on the extracted holder. See SKILL.md §3.1 state-holder detection.
+> test on the extracted holder. See the implement SKILL.md §2.2 (Determine
+> Test Strategy) state-holder detection.
 
 ### Chunk 3: Wiring (depends on chunks 1 and 2)
 ```json

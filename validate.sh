@@ -584,7 +584,7 @@ section "16. No em or en dashes in published files"
 # Scan every published markdown file (core skill/agent prose plus the
 # top-level docs). docs/ is not part of the release, so it is out of scope.
 # (Arrows U+2192 are used deliberately and are not flagged.)
-em_dash_files=("${core_files[@]}" "README.md" "CHANGELOG.md" "PRIVACY.md")
+em_dash_files=("${core_files[@]}" "README.md" "CHANGELOG.md" "PRIVACY.md" examples/*/config.md examples/*/domain.md)
 
 em_dash_found=false
 for file in "${em_dash_files[@]}"; do
