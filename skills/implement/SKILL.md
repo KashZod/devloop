@@ -281,8 +281,8 @@ completed chunks:
 - **Large diff** (broader: multiple files or cross-cutting, i.e. `/plan`
   Medium+ and Large): split the red-team half into `mode: bugs` and
   `mode: cleanup` run in parallel, so neither family crowds the other
-  out. Invoke the `cleanup` agent **report-only** (it can otherwise apply
-  fixes), which keeps the whole gate read-only.
+  out. Invoke that `mode: cleanup` run **report-only** (it can otherwise
+  apply fixes), which keeps the whole gate read-only.
 
 Small diff (default):
 

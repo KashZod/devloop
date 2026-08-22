@@ -659,14 +659,14 @@ for token in "mode: both" "mode: bugs" "mode: cleanup"; do
         fail "implement SKILL.md Phase 3 is missing the size-adaptive marker: \"$token\" (the red-team spawn must document small -> mode: both vs large -> parallel mode: bugs + mode: cleanup)"
     fi
 done
-# The split cleanup agent must be invoked report-only so the gate stays
-# read-only. Match loosely (hyphen or space) so a benign reword does not
-# spuriously fail; the invariant is the report-only instruction, not its
-# spelling.
+# The split's mode: cleanup run must be invoked report-only so the gate
+# stays read-only. Match loosely (hyphen or space) so a benign reword does
+# not spuriously fail; the invariant is the report-only instruction, not
+# its spelling.
 if grep -Eqi "report[- ]only" "$implement_skill"; then
-    pass "implement SKILL.md invokes the split cleanup agent report-only"
+    pass "implement SKILL.md invokes the split mode: cleanup run report-only"
 else
-    fail "implement SKILL.md Phase 3 must invoke the large-diff cleanup agent report-only (keeps the parallel gate read-only)"
+    fail "implement SKILL.md Phase 3 must invoke the large-diff mode: cleanup run report-only (keeps the parallel gate read-only)"
 fi
 
 # ─────────────────────────────────────────────
