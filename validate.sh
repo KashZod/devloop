@@ -377,12 +377,12 @@ check_lessons "$plan_skill" "Plan"
 check_lessons "$spec_skill" "Spec"
 
 # ─────────────────────────────────────────────
-section "9. project-configs examples have required sections"
+section "9. Example configs have required sections"
 # ─────────────────────────────────────────────
 
-# The project-configs examples are the canonical starting templates a user
-# copies into .devloop/config.md and .devloop/domain.md. Any one of them
-# could be the copied file, so each must carry the full section set.
+# The examples/<stack>/ directories are the canonical starting templates a
+# user copies into .devloop/ (config.md + domain.md). Any one could be the
+# copied file, so each must carry the full section set.
 implement_sections=(
     "Build & Test Commands"
     "Architecture Patterns"
@@ -392,13 +392,13 @@ implement_sections=(
     "Documentation Location"
 )
 
-for cfg in skills/implement/project-configs/*.md; do
-    name="$(basename "$cfg")"
+for cfg in examples/*/config.md; do
+    stack="$(basename "$(dirname "$cfg")")"
     for section_name in "${implement_sections[@]}"; do
         if grep -q "$section_name" "$cfg"; then
-            pass "$name has \"$section_name\""
+            pass "examples/$stack/config.md has \"$section_name\""
         else
-            fail "$name missing \"$section_name\""
+            fail "examples/$stack/config.md missing \"$section_name\""
         fi
     done
 done
@@ -410,13 +410,13 @@ spec_sections=(
     "Quality Standards"
 )
 
-for cfg in skills/spec/project-configs/*.md; do
-    name="$(basename "$cfg")"
+for cfg in examples/*/domain.md; do
+    stack="$(basename "$(dirname "$cfg")")"
     for section_name in "${spec_sections[@]}"; do
         if grep -q "$section_name" "$cfg"; then
-            pass "$name has \"$section_name\""
+            pass "examples/$stack/domain.md has \"$section_name\""
         else
-            fail "$name missing \"$section_name\""
+            fail "examples/$stack/domain.md missing \"$section_name\""
         fi
     done
 done
@@ -545,33 +545,7 @@ for skill_file in "$implement_skill" "$plan_skill" "$spec_skill"; do
 done
 
 # ─────────────────────────────────────────────
-section "15. Example project configs are valid"
-# ─────────────────────────────────────────────
-
-for config in skills/implement/project-configs/*.md; do
-    basename="$(basename "$config")"
-    for section_name in "${implement_sections[@]}"; do
-        if grep -q "$section_name" "$config"; then
-            pass "implement/$basename has \"$section_name\""
-        else
-            fail "implement/$basename missing \"$section_name\""
-        fi
-    done
-done
-
-for config in skills/spec/project-configs/*.md; do
-    basename="$(basename "$config")"
-    for section_name in "${spec_sections[@]}"; do
-        if grep -q "$section_name" "$config"; then
-            pass "spec/$basename has \"$section_name\""
-        else
-            fail "spec/$basename missing \"$section_name\""
-        fi
-    done
-done
-
-# ─────────────────────────────────────────────
-section "16. No harness-specific mechanics in skill/agent prose"
+section "15. No harness-specific mechanics in skill/agent prose"
 # ─────────────────────────────────────────────
 
 # devloop is harness-agnostic: skill and agent instructions describe
@@ -603,7 +577,7 @@ if ! $harness_leak; then
 fi
 
 # ─────────────────────────────────────────────
-section "17. No em or en dashes in published files"
+section "16. No em or en dashes in published files"
 # ─────────────────────────────────────────────
 
 # The repo uses standard punctuation, not em (U+2014) or en (U+2013) dashes.
@@ -625,7 +599,7 @@ if ! $em_dash_found; then
 fi
 
 # ─────────────────────────────────────────────
-section "18. Config discovery points at .devloop/"
+section "17. Config discovery points at .devloop/"
 # ─────────────────────────────────────────────
 
 # The plugin-install-safe convention: skills and agents read project

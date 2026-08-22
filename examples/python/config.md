@@ -1,4 +1,4 @@
-# .devloop/config.md example - Python / pytest
+# .devloop/config.md example - Python
 
 Example configuration for a Python project using pytest,
 with optional Django or FastAPI framework.

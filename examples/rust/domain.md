@@ -1,4 +1,4 @@
-# .devloop/domain.md example - Rust / CLI
+# .devloop/domain.md example - Rust
 
 Example configuration for a Rust command-line tool.
 

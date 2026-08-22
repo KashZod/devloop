@@ -1,4 +1,4 @@
-# .devloop/config.md example - Rust / Cargo
+# .devloop/config.md example - Rust
 
 Example configuration for a Rust project using cargo test.
 

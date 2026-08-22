@@ -198,13 +198,11 @@ live in a read-only cache, but they read `.devloop/` from your project,
 not the cache. There is no copied-in fallback; `.devloop/` is the only
 project-config source.
 
-The fastest start is to copy the closest example to `.devloop/config.md`
-from
-[`skills/implement/project-configs/`](skills/implement/project-configs/)
-and to `.devloop/domain.md` from
-[`skills/spec/project-configs/`](skills/spec/project-configs/),
-ready-made configs for Node/TypeScript, Python, Rust, and Android/Kotlin.
-Each is a template of `YOUR_*_HERE` placeholders; fill them in.
+The fastest start is to copy the closest
+[`examples/<stack>/`](examples/) directory to `.devloop/` in your project:
+each holds a `config.md` and a `domain.md` for one stack
+(`typescript-node`, `python`, `rust`, `android-kotlin`). Each file is a
+template of `YOUR_*_HERE` placeholders; fill them in.
 
 **Commit `config.md` and `domain.md`** so the whole team shares one
 context. `.devloop/trackers/` holds in-progress work; commit it for

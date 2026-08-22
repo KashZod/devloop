@@ -25,10 +25,10 @@ resolves in the user's project) and gives trackers a stable home outside
   `.devloop/` from the project. There is no copied-in `PROJECT.md` fallback
   (the old template files are removed); `.devloop/` is the only
   project-config source.
-- **`validate.sh` section 18**: fails if a core file reintroduces the
+- **`validate.sh` section 17**: fails if a core file reintroduces the
   plugin-cache config pointer ("plugin's skill directory") and requires each
   skill and review agent to name the `.devloop/` home.
-- **`validate.sh` section 17** now also rejects en dashes (not just em
+- **`validate.sh` section 16** now also rejects en dashes (not just em
   dashes), closing a gap in the standard-punctuation guard.
 - **Plugin marketplaces**: `.claude-plugin/marketplace.json` (Claude Code)
   and `.agents/plugins/marketplace.json` (Codex, its native catalog
@@ -46,10 +46,14 @@ resolves in the user's project) and gives trackers a stable home outside
 - **Tracker home**: `/plan` writes trackers to `.devloop/trackers/` by
   default (was `docs/`); `/implement`, `review-plan`, and `review-impl`
   look there.
-- **Example configs** now label their destination: the
-  `implement/project-configs/` examples are headed as `.devloop/config.md`
-  examples, the `spec/project-configs/` examples as `.devloop/domain.md`
-  examples (the directory names are unchanged).
+- **Example configs** live in one place per stack under a top-level
+  `examples/<stack>/` (`typescript-node`, `python`, `rust`,
+  `android-kotlin`), each holding a `config.md` and a `domain.md`; copy the
+  closest directory to `.devloop/`. This replaces the split
+  `skills/spec/project-configs/` (domain) and
+  `skills/implement/project-configs/` (engineering) layout, and
+  `validate.sh` now checks the examples in a single section (the former
+  duplicate example-config check is removed).
 
 ### Migration
 - **Move in-flight trackers.** Trackers previously written under `docs/`
@@ -61,7 +65,7 @@ resolves in the user's project) and gives trackers a stable home outside
   gone; `.devloop/` is the only project-config source. Split any old
   `PROJECT.md` into `.devloop/config.md` (engineering settings and paths)
   and `.devloop/domain.md` (domain knowledge), or copy the closest
-  `project-configs/` example as a starting point.
+  `examples/<stack>/` directory as a starting point.
 
 ### Fixed
 - **Valid Claude Code manifest.** `.claude-plugin/plugin.json` no longer

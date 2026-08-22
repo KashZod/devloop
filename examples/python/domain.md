@@ -1,4 +1,4 @@
-# .devloop/domain.md example - Python / Django
+# .devloop/domain.md example - Python
 
 Example configuration for a Django web application with
 Django REST Framework.
