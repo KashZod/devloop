@@ -1,5 +1,37 @@
 # Changelog
 
+## 3.1.1
+
+Documentation and consistency fixes surfaced by two independent
+release-readiness reviews. No behavior change: the loop, gates, and
+schemas are identical to 3.1.0.
+
+### Fixed
+- **Examples are concrete, not templates.** The README described the
+  `examples/<stack>/` files as `YOUR_*_HERE` placeholder templates, but
+  they are concrete, stack-specific instances. Reworded to "copy the
+  closest to `.devloop/` and adapt it."
+- **Examples surface the directory settings.** Each `examples/*/config.md`
+  now shows the `spec-directory` / `tracker-directory` settings (with
+  defaults `docs/specs/` and `.devloop/trackers/`), matching what the
+  README says `config.md` owns.
+- **Accurate config cross-references.** `quality-checklist.md` now cites
+  the real config headings (`§Standards to Verify`, `§Blindspots to
+  Check`); `examples/*/domain.md` attributes the Domain-Specific Concerns
+  section to the Clarification Taxonomy (§9), not the Validation Checklist
+  (which has only §1-8); and `chunk-template.md`'s state-holder pointer
+  now resolves to `implement SKILL.md §2.2` instead of a non-existent
+  `§3.1`.
+- **`/implement` Process Overview** now states that a passing `plan_review`
+  is `PASS` *or* `PASS-WITH-WARNINGS` (it previously named only `PASS`).
+- **Marketplace descriptions de-drifted.** Both `marketplace.json` catalog
+  entries now match their `plugin.json` description verbatim, so there is
+  one canonical blurb per harness.
+- **`validate.sh` housekeeping.** The dash guard now also scans
+  `examples/*/config.md` and `examples/*/domain.md` (published files a user
+  copies into `.devloop/`); a stale comment referencing an uncommitted
+  `evals/` directory was removed.
+
 ## 3.1.0
 
 A single project-local home for devloop's per-project files: `.devloop/`.
