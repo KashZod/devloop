@@ -554,8 +554,8 @@
 
       <div class="faq">
         <details>
-          <summary>Do I need Claude Code specifically? <span class="plus">+</span></summary>
-          <div class="ans">No. The loop is harness-agnostic: it runs on Claude Code and Codex today, and the gates spawn review agents wherever a harness supports delegation. On a harness with no subagent capability, each gate degrades to an in-context self-check and the skills say so at that gate, rather than pretending the independence still holds.</div>
+          <summary>What agent do I need to run it? <span class="plus">+</span></summary>
+          <div class="ans">Any coding agent that supports slash-command skills and can delegate to subagents. Claude Code and Codex both qualify and are what devloop runs on today. Subagent delegation is what lets each gate review in a context that did not write the code; on a harness without it the gates still run, but degrade to an in-context self-check, and the skills say so at that gate rather than pretending the independence still holds.</div>
         </details>
         <details>
           <summary>Does it call a model or send my code anywhere? <span class="plus">+</span></summary>
