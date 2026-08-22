@@ -3,6 +3,9 @@
 The tracker file is the single source of truth for feature implementation progress.
 It is a local working file - not committed to version control.
 
+Write it **atomically** (write a temp file, then rename over the old one) so a
+crash mid-write cannot corrupt the single source of truth.
+
 **Filename convention:** Trackers use `impl-tracker-<feature>.json`.
 
 ---
@@ -15,7 +18,9 @@ It is a local working file - not committed to version control.
   "issue": "GitHub/GitLab issue reference (e.g., org/repo#76)",
   "design_doc": "path/to/design-doc.md (optional)",
   "plan_doc": "path/to/plan.md (optional)",
-  "plan_review": "PASS",
+  "spec_doc": "docs/specs/<feature>.md (optional, set by /plan)",
+  "plan_review": "PENDING",
+  "convergence_rounds": 0,
   "chunks": [
     {
       "id": 1,
@@ -55,7 +60,9 @@ It is a local working file - not committed to version control.
 | `issue` | Yes | Issue tracker reference |
 | `design_doc` | No | Path to design document |
 | `plan_doc` | No | Path to plan document |
-| `plan_review` | No | Review-plan gate verdict: `"PASS"`, `"PASS-WITH-WARNINGS"`, or `"FAIL"`. Set in Phase 2.5. Session resumption checks this before Phase 3 |
+| `spec_doc` | No | Path to the source spec (`docs/specs/*.md`), set by `/plan` so `/implement` and `review-impl` bind to the exact spec instead of globbing the spec directory |
+| `plan_review` | No | Review-plan gate verdict. **Lifecycle:** `/plan` Phase 3 creates the tracker with `"PENDING"` (gate not yet run); the Phase 5 gate overwrites it with `"PASS"`, `"PASS-WITH-WARNINGS"`, or `"FAIL"`. `/implement` refuses to start the TDD cycle unless it is `PASS` or `PASS-WITH-WARNINGS`, so `"PENDING"` and `"FAIL"` both hard-stop. Never pre-stamp `"PASS"` at creation |
+| `convergence_rounds` | No | Count of `review-plan` re-gate invocations during `/implement` Phase 3 convergence; bumped before each re-gate (treat absent as `0`), so the bounded-loop cap (stop at 2) survives session resets |
 | `chunks` | Yes | Array of implementation chunks |
 | `quality_verification` | No | Filled after all chunks complete |
 
@@ -81,7 +88,7 @@ It is a local working file - not committed to version control.
 ```text
 pending ──> in_progress ──> complete
                 │
-                └──> error (with notes explaining the issue)
+                └──> error ──> in_progress   (retry once the blocker is resolved)
 ```
 
 Rules:
@@ -89,6 +96,13 @@ Rules:
 - Set `complete` only after tests pass and tracker is verified
 - Set `error` if blocked; add notes explaining what went wrong
 - Never skip `in_progress` (helps session resumption)
+- **`error` is not a terminal state.** A resuming or continuing session
+  re-enters an `error` chunk (like `in_progress`) once the blocker is
+  resolved, or escalates. A chunk left at `error`, or any state where no
+  `pending` chunk is selectable but not all chunks are `complete` (e.g. a
+  `depends_on` cycle or a dangling dependency), is a **blocked feature**:
+  `/implement` must surface it to the user, never silently finish with the
+  Phase 3 gate un-triggered.
 
 ---
 
@@ -98,7 +112,7 @@ A resuming session reads the chunk's required fields directly:
 `name` (what), `files_create` + `files_modify` (where), `tdd` (test
 conditions), `acceptance_criteria` (pass/fail). Add a `notes` entry
 when there's something a resuming session can't infer from those,
-typically a `PATTERN: file:function` hint or a `DO NOT: ...` pitfall.
+such as a `PATTERN: file:function` hint or a `DO NOT: ...` pitfall.
 
 ```json
 {
@@ -129,11 +143,14 @@ For small features (1 chunk), the tracker is still created but simplified:
 {
   "phase": "Feature Name",
   "issue": "org/repo#XX",
+  "spec_doc": "docs/specs/feature-name.md",
+  "plan_review": "PENDING",
+  "convergence_rounds": 0,
   "chunks": [
     {
       "id": 1,
       "name": "Feature description",
-      "status": "complete",
+      "status": "pending",
       "files_create": [],
       "files_modify": ["path/to/File.ext"],
       "test_files": ["path/to/Test.ext"],

@@ -1,6 +1,6 @@
 ---
 name: spec
-description: "Structured specification process: explores code, generates user stories with testable acceptance criteria, resolves ambiguities through interactive clarification, validates completeness, and outputs a lightweight spec. Use before /implement to clarify WHAT to build."
+description: "Structured specification process: explores code, generates user stories with testable acceptance criteria, resolves ambiguities through interactive clarification, validates completeness, and outputs a lightweight spec. Use before /plan to clarify WHAT to build."
 argument-hint: "[description of feature, fix, or change]"
 effort: high
 ---
@@ -14,15 +14,15 @@ Instead of discovering ambiguity mid-implementation (expensive),
 surface it upfront through structured exploration and clarification,
 where resolving it costs a question instead of a rewrite.
 
-## Mapping to Claude Code Workflow
+## Mapping to the Explore -> Plan -> Code Loop
 
-| Claude Code Phase | Spec Phase | What Happens |
+| Workflow Phase | Spec Phase | What Happens |
 |---|---|---|
 | **Explore** | Phase 1: Explore | Read files, understand context, check PROJECT.md |
 | **Plan** | Phase 2: Specify | User stories, acceptance criteria, edge cases |
 | **Plan** | Phase 3: Clarify | Interactive disambiguation (max 5 questions) |
 | **Plan** | Phase 4: Validate | 8-point spec quality checklist |
-| **Plan** | Phase 5: Handoff | Summary report, suggest /implement |
+| **Plan** | Phase 5: Handoff | Summary report, suggest /plan |
 
 ## When to Use This Process
 
@@ -110,9 +110,10 @@ reference materials, domain knowledge files, and similar projects.
 The goal is the same, understand context before specifying, but
 the context lives in documents rather than code.
 
-**Context tip:** Steps 1.2 and 1.3 are independent, run them in
-parallel (e.g., use subagents) when the codebase is large or
-unfamiliar.
+**Context tip:** Steps 1.2 and 1.3 are independent. If your harness
+supports parallel tool calls or subagents, run them concurrently when
+the codebase is large or unfamiliar; otherwise run them sequentially,
+that is the default and is correct.
 
 ### 1.3 Read Project Context
 
@@ -224,9 +225,9 @@ materially impacts the spec:
 - Include all sections from the template
 - Set frontmatter status to `Draft`
 - **Size check:** Standard features should target ~80-150 lines
-  before Clarifications. If significantly over, reconsider scope,
+  before Clarifications. If well over, reconsider scope,
   it may be multiple features. Apply scope negotiation (see §When
-  to Use). Product-level specs (see §Product vs feature) naturally
+  to Use). Product-level specs (see §Product vs feature)
   exceed this, up to ~300 lines is expected for products with
   6-12 user stories
 
@@ -354,34 +355,35 @@ Output to the user:
 - Validation result (Ready or Ready-with-warnings)
 - Any deferred ambiguities or validation warnings
 
-### 5.2 Implementation Integration
+### 5.2 Downstream Integration
 
-Explain how the spec maps to /implement:
+Explain how the spec feeds `/plan` (which decomposes it into chunks) and
+then `/implement` (which builds them):
 
-| Spec Section | Implement Phase | How to Use |
+| Spec Section | Consumed by | How to Use |
 |---|---|---|
-| User Stories | Phase 1: Analysis | Scope of what to explore |
-| Acceptance Criteria | Phase 3: Pre-Test | Write these as failing tests |
-| Edge Cases | Phase 3: Pre-Test | Additional test cases |
-| Affected Components | Phase 2: Planning | Starting point for chunks |
-| Assumptions | Phase 1: Analysis | Context for architecture decisions |
+| User Stories | /plan Phase 1 (Analysis) | Scope of what to explore |
+| Affected Components | /plan Phases 1-2 | Starting point for chunk decomposition |
+| Assumptions | /plan Phase 1 (Analysis) | Context for architecture decisions |
+| Acceptance Criteria | /plan (chunk criteria), /implement (tests) | Become per-chunk criteria, then failing tests |
+| Edge Cases | /implement Phase 2 (TDD Cycle) | Additional test cases |
 
 ### 5.3 Suggest Next Step
 
 ```
-Next: /implement <feature> (spec: docs/specs/<feature>.md)
+Next: /plan <feature> (spec: docs/specs/<feature>.md)
 ```
 
 If the spec has warnings, note them:
 "The spec has N unresolved warnings, review the Notes section
-before starting implementation."
+before planning."
 
 **Non-code projects:** If the spec covers content, configuration,
 or documentation (no executable code), adapt the mapping:
 - "Write these as failing tests" → "Write these as validation
   criteria or review checks"
 - "Starting point for chunks" → "Starting point for content chunks"
-- Suggest a structured implementation order rather than `/implement`
+- Suggest a structured build order rather than `/plan` + `/implement`
 
 ---
 
@@ -400,6 +402,12 @@ redefining scope), handle it as a controlled re-spec:
 
 This is cheaper than starting fresh because unaffected stories,
 edge cases, and clarifications are preserved.
+
+This is also the landing point when `/plan` or `/implement` discovers
+mid-build that an acceptance *criterion itself* was wrong: they route the
+user back here to fix the criterion rather than inventing the fix
+downstream, then re-run `/plan` so §3.1 merges the revised spec into the
+existing tracker and `review-plan` re-gates.
 
 ---
 

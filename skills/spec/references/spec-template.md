@@ -72,15 +72,15 @@ no file paths, no algorithms.>
 | <path/to/file> | <what it does> | <what changes> |
 | <path/to/module> | <what it does> | <what changes> |
 
-## Implementation Mapping
+## Downstream Mapping
 
-| Spec Section | Implement Phase | How to Use |
+| Spec Section | Consumed by | How to Use |
 |---|---|---|
-| User Stories | Phase 1: Analysis | Scope of what to explore |
-| Acceptance Criteria | Phase 3: Pre-Test | Write these as failing tests |
-| Edge Cases | Phase 3: Pre-Test | Additional test cases |
-| Affected Components | Phase 2: Planning | Starting point for chunk decomposition |
-| Assumptions | Phase 1: Analysis | Context for architecture decisions |
+| User Stories | /plan Phase 1 (Analysis) | Scope of what to explore |
+| Affected Components | /plan Phases 1-2 | Starting point for chunk decomposition |
+| Assumptions | /plan Phase 1 (Analysis) | Context for architecture decisions |
+| Acceptance Criteria | /plan (chunk criteria), /implement (tests) | Become per-chunk criteria, then failing tests |
+| Edge Cases | /implement Phase 2 (TDD Cycle) | Additional test cases |
 
 ## Clarifications
 
@@ -131,7 +131,7 @@ spec-version: 1                # Bumped when spec is re-run/updated
 
 ### Acceptance Criteria
 
-- Given/When/Then format ensures testability
+- Given/When/Then format keeps each criterion testable
 - Each criterion should map to one or more tests
 - Include both happy path and error scenarios for P1 stories
 - Be specific: "error message appears" is too vague,
@@ -167,19 +167,20 @@ spec-version: 1                # Bumped when spec is re-run/updated
 ### Affected Components
 
 - File paths and modules from Phase 1 exploration
-- Brief role description so /implement can skip redundant exploration
+- Brief role description so /plan can skip redundant exploration
 - Impact column describes what will change, not how
 
-### Implementation Mapping
+### Downstream Mapping
 
-- Always include this section, it's the bridge to implementation
-- Maps each spec section to the /implement phase that consumes it
-- The /implement skill references this table to know where to look
+- Always include this section, it's the bridge to planning and build
+- Maps each spec section to the /plan or /implement phase that consumes it
+- The /plan skill references this table to know where to look
 - **Non-code projects:** If the deliverable is content, config, or
   documentation rather than executable code, adapt the mapping:
   replace "failing tests" with "validation criteria or review checks"
   and "chunk decomposition" with "content chunking." Suggest a
-  structured build order rather than referencing `/implement` directly
+  structured build order rather than referencing `/plan` + `/implement`
+  directly
 
 ### Clarifications
 

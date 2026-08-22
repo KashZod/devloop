@@ -1,6 +1,6 @@
 ---
 name: review-plan
-description: "Reviews implementation plans for completeness, correctness, gaps, standards, regression risk, robustness, blindspots, and TDD quality. Use after creating a plan in Phase 2 and before writing any code."
+description: "Reviews implementation plans for completeness, correctness, functional gaps, standards, regression risk, robustness, architectural gaps, and TDD quality. Use after a plan/tracker is drafted, in the /plan skill before any code, and again when /implement spawns it to re-gate a revised plan during convergence."
 tools: Read, Grep, Glob, Bash
 model: opus
 effort: high
@@ -30,8 +30,8 @@ plan" without a path, look for the most recent `impl-tracker-*.json` in
 Read these files (skip any that don't exist):
 - The plan document itself
 - `CLAUDE.md` (project rules and architecture)
-- `PROJECT.md` in the skill directory (build commands, standards)
-- Any spec file referenced by the plan (`docs/specs/*.md`)
+- The project's engineering `PROJECT.md` (build commands, standards)
+- The spec the tracker names in `spec_doc` (or, if absent, any spec in the configured spec directory: `PROJECT.md`, default `docs/specs/`)
 - Any design doc referenced by the plan
 
 ### Step 2: Understand the Plan
@@ -43,14 +43,18 @@ Before reviewing, summarize in 2-3 sentences:
 
 ### Step 3: Run the 8-Point Review
 
-Evaluate each criterion. For each one, give a verdict:
+Evaluate each criterion and give a verdict:
 **PASS**, **WARN** (minor issue, proceed with note), or **FAIL** (must fix before coding).
 
 ---
 
-### 1. Scope & Completeness
+### 1. Scope, Completeness & Traceability
 
-Does every acceptance criterion have a chunk? Does every chunk serve a criterion?
+Does every acceptance criterion have a chunk? Does every chunk serve a
+criterion? This is the spec -> plan -> tracker traceability check: trace
+each spec/tracker acceptance criterion forward to an implementing chunk,
+and each chunk backward to a criterion it serves. A criterion with no
+chunk is a gap; a chunk with no criterion is scope creep. Both fail.
 
 **How to check (completeness, nothing missing):**
 - List all acceptance criteria from the plan/tracker
@@ -229,7 +233,7 @@ Output a structured report in this exact format:
 
 | # | Criterion | Verdict | Details |
 |---|-----------|---------|---------|
-| 1 | Completeness | PASS/WARN/FAIL | [one-line summary] |
+| 1 | Scope & Completeness | PASS/WARN/FAIL | [one-line summary] |
 | 2 | Correctness | PASS/WARN/FAIL | [one-line summary] |
 | 3 | Gaps (Functional) | PASS/WARN/FAIL | [one-line summary] |
 | 4 | Standards | PASS/WARN/FAIL | [one-line summary] |

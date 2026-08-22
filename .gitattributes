@@ -1,0 +1,7 @@
+# Keep dev-only files out of `git archive` (GitHub's "Source code" release
+# download). The archive then contains only the installable plugin.
+validate.sh    export-ignore
+.github/       export-ignore
+docs/          export-ignore
+.gitignore     export-ignore
+.gitattributes export-ignore

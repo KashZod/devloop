@@ -34,14 +34,17 @@ section "1. Required files exist"
 
 required_files=(
     ".claude-plugin/plugin.json"
+    ".codex-plugin/plugin.json"
     "LICENSE"
     "README.md"
     # Implement skill
     "skills/implement/SKILL.md"
     "skills/implement/PROJECT.md"
-    "skills/implement/references/chunk-template.md"
-    "skills/implement/references/tracker-schema.md"
     "skills/implement/references/quality-checklist.md"
+    # Plan skill (owns the plan artifacts: tracker schema + chunk template)
+    "skills/plan/SKILL.md"
+    "skills/plan/references/chunk-template.md"
+    "skills/plan/references/tracker-schema.md"
     # Spec skill
     "skills/spec/SKILL.md"
     "skills/spec/PROJECT.md"
@@ -94,9 +97,10 @@ check_links_in() {
 
 check_links_in "README.md"
 check_links_in "skills/implement/SKILL.md"
+check_links_in "skills/plan/SKILL.md"
 check_links_in "skills/spec/SKILL.md"
-check_links_in "skills/implement/references/chunk-template.md"
-check_links_in "skills/implement/references/tracker-schema.md"
+check_links_in "skills/plan/references/chunk-template.md"
+check_links_in "skills/plan/references/tracker-schema.md"
 check_links_in "skills/implement/references/quality-checklist.md"
 check_links_in "skills/spec/references/spec-template.md"
 check_links_in "skills/spec/references/clarification-taxonomy.md"
@@ -106,11 +110,35 @@ check_links_in "skills/spec/references/validation-checklist.md"
 section "3. JSON validity"
 # ─────────────────────────────────────────────
 
-# plugin.json
+# plugin.json (Claude Code)
 if python3 -m json.tool .claude-plugin/plugin.json > /dev/null 2>&1; then
     pass "plugin.json is valid JSON"
 else
     fail "plugin.json is invalid JSON"
+fi
+
+# plugin.json (Codex)
+if python3 -m json.tool .codex-plugin/plugin.json > /dev/null 2>&1; then
+    pass "codex plugin.json is valid JSON"
+else
+    fail "codex plugin.json is invalid JSON"
+fi
+
+# Codex manifest required fields + skills-dir pointer (Codex uses a
+# directory string for skills, not Claude's array of objects).
+for field in name version description skills; do
+    if python3 -c "import json; d=json.load(open('.codex-plugin/plugin.json')); assert '$field' in d" 2>/dev/null; then
+        pass "codex plugin.json has '$field' field"
+    else
+        fail "codex plugin.json missing '$field' field"
+    fi
+done
+
+codex_skills="$(python3 -c "import json; print(json.load(open('.codex-plugin/plugin.json')).get('skills',''))" 2>/dev/null || echo '')"
+if [[ "$codex_skills" == "./skills/" ]]; then
+    pass "codex plugin.json skills points to ./skills/"
+else
+    fail "codex plugin.json skills should be './skills/' (got '$codex_skills')"
 fi
 
 # JSON blocks in markdown files
@@ -142,8 +170,8 @@ validate_json_blocks() {
     done < "$file"
 }
 
-validate_json_blocks "skills/implement/references/tracker-schema.md"
-validate_json_blocks "skills/implement/references/chunk-template.md"
+validate_json_blocks "skills/plan/references/tracker-schema.md"
+validate_json_blocks "skills/plan/references/chunk-template.md"
 
 # ─────────────────────────────────────────────
 section "4. plugin.json has required fields"
@@ -159,64 +187,53 @@ done
 
 # Check skills array
 skill_count="$(python3 -c "import json; d=json.load(open('.claude-plugin/plugin.json')); print(len(d.get('skills',[])))" 2>/dev/null || echo 0)"
-if [[ "$skill_count" -ge 2 ]]; then
+if [[ "$skill_count" -eq 3 ]]; then
     pass "plugin.json has $skill_count skills"
 else
-    fail "plugin.json has $skill_count skills (expected >= 2)"
+    fail "plugin.json has $skill_count skills (expected exactly 3: spec, plan, implement)"
 fi
 
 # ─────────────────────────────────────────────
-section "5. Implement SKILL.md phases are sequential (1-6)"
+section "5. Skill phases are sequential (spec 1-5, plan 1-5, implement 1-3)"
 # ─────────────────────────────────────────────
 
 implement_skill="skills/implement/SKILL.md"
-
-phase_count="$(grep -cE '^## Phase [0-9]+:' "$implement_skill" || true)"
-if [[ "$phase_count" -eq 6 ]]; then
-    pass "Implement SKILL.md has $phase_count phases"
-else
-    fail "Implement SKILL.md has $phase_count phases (expected 6)"
-fi
-
-expected=1
-phase_nums="$(grep -E '^## Phase [0-9]+:' "$implement_skill" | sed 's/^## Phase //' | sed 's/:.*//' || true)"
-while IFS= read -r num; do
-    [[ -z "$num" ]] && continue
-    if [[ "$num" -eq "$expected" ]]; then
-        pass "Implement Phase $num is sequential"
-    else
-        fail "Implement Phase $num out of order (expected $expected)"
-    fi
-    expected=$((expected + 1))
-done <<< "$phase_nums"
-
-# ─────────────────────────────────────────────
-section "6. Spec SKILL.md phases are sequential (1-5)"
-# ─────────────────────────────────────────────
-
+plan_skill="skills/plan/SKILL.md"
 spec_skill="skills/spec/SKILL.md"
 
-phase_count="$(grep -cE '^## Phase [0-9]+:' "$spec_skill" || true)"
-if [[ "$phase_count" -eq 5 ]]; then
-    pass "Spec SKILL.md has $phase_count phases"
-else
-    fail "Spec SKILL.md has $phase_count phases (expected 5)"
-fi
+check_phase_sequence() {
+    local file="$1"
+    local label="$2"
+    local want="$3"
 
-expected=1
-phase_nums="$(grep -E '^## Phase [0-9]+:' "$spec_skill" | sed 's/^## Phase //' | sed 's/:.*//' || true)"
-while IFS= read -r num; do
-    [[ -z "$num" ]] && continue
-    if [[ "$num" -eq "$expected" ]]; then
-        pass "Spec Phase $num is sequential"
+    local phase_count
+    phase_count="$(grep -cE '^## Phase [0-9]+:' "$file" || true)"
+    if [[ "$phase_count" -eq "$want" ]]; then
+        pass "$label has $phase_count phases"
     else
-        fail "Spec Phase $num out of order (expected $expected)"
+        fail "$label has $phase_count phases (expected $want)"
     fi
-    expected=$((expected + 1))
-done <<< "$phase_nums"
+
+    local expected=1
+    local phase_nums
+    phase_nums="$(grep -E '^## Phase [0-9]+:' "$file" | sed 's/^## Phase //' | sed 's/:.*//' || true)"
+    while IFS= read -r num; do
+        [[ -z "$num" ]] && continue
+        if [[ "$num" -eq "$expected" ]]; then
+            pass "$label Phase $num is sequential"
+        else
+            fail "$label Phase $num out of order (expected $expected)"
+        fi
+        expected=$((expected + 1))
+    done <<< "$phase_nums"
+}
+
+check_phase_sequence "$spec_skill" "Spec SKILL.md" 5
+check_phase_sequence "$plan_skill" "Plan SKILL.md" 5
+check_phase_sequence "$implement_skill" "Implement SKILL.md" 3
 
 # ─────────────────────────────────────────────
-section "7. Quality checklist has exactly 8 points"
+section "6. Quality checklist has exactly 8 points"
 # ─────────────────────────────────────────────
 
 checklist="skills/implement/references/quality-checklist.md"
@@ -240,13 +257,13 @@ while IFS= read -r num; do
 done <<< "$checklist_nums"
 
 # ─────────────────────────────────────────────
-section "8. Implement SKILL.md 8-point summaries match checklist"
+section "7. Gate structure and 8-point summaries"
 # ─────────────────────────────────────────────
 
-# Phase 6 Quick Reference lists criteria 1-7 in bold; Phase 2.5 delegates
-# to the review-plan agent (criteria listed in the agent, not inline).
-# Check: each criterion appears at least once (Phase 6 Quick Reference).
-phase6_names=(
+# Implement Phase 3 lists the 8 concern names in bold (the code-time
+# checklist). The plan-review gate now lives in /plan Phase 5; its 8
+# criteria live in the review-plan agent, not inline in the skill.
+phase3_names=(
     "Completeness"
     "Correctness"
     "Gaps (Functional)"
@@ -257,31 +274,38 @@ phase6_names=(
     "Blindspots"
 )
 
-for name in "${phase6_names[@]}"; do
+for name in "${phase3_names[@]}"; do
     count="$(grep -c "\*\*$name\*\*" "$implement_skill" || true)"
     if [[ "$count" -ge 1 ]]; then
-        pass "\"$name\" in Phase 6 Quick Reference"
+        pass "\"$name\" in Implement Phase 3 checklist"
     else
         fail "\"$name\" not found in Implement SKILL.md"
     fi
 done
 
-# Phase 2.5 is an artifact-triggered gate that delegates to review-plan agent.
-# Verify the gate structure exists.
-if grep -q "GATE.*tracker.*triggers" "$implement_skill"; then
-    pass "Phase 2.5 has artifact-triggered gate"
+# The plan-review gate is artifact-triggered in /plan Phase 5.
+if grep -q "GATE.*tracker.*triggers" "$plan_skill"; then
+    pass "Plan SKILL.md has artifact-triggered plan-review gate"
 else
-    fail "Phase 2.5 missing artifact-triggered gate pattern"
+    fail "Plan SKILL.md missing artifact-triggered gate pattern"
 fi
 
-if grep -q "plan_review" "$implement_skill"; then
-    pass "SKILL.md references plan_review tracker field"
+# The /implement quality gate is triggered when all chunks complete.
+if grep -qE "GATE.*(chunks complete|parallel review)" "$implement_skill"; then
+    pass "Implement SKILL.md has artifact-triggered quality gate"
 else
-    fail "SKILL.md missing plan_review tracker field reference"
+    fail "Implement SKILL.md missing quality gate pattern"
+fi
+
+# /plan records the gate field; /implement verifies it before the TDD cycle.
+if grep -q "plan_review" "$plan_skill" && grep -q "plan_review" "$implement_skill"; then
+    pass "plan_review tracker field referenced in /plan and /implement"
+else
+    fail "plan_review tracker field not referenced in both skills"
 fi
 
 # ─────────────────────────────────────────────
-section "9. Lessons learned are sequentially numbered"
+section "8. Lessons learned are sequentially numbered"
 # ─────────────────────────────────────────────
 
 check_lessons() {
@@ -328,10 +352,11 @@ check_lessons() {
 }
 
 check_lessons "$implement_skill" "Implement"
+check_lessons "$plan_skill" "Plan"
 check_lessons "$spec_skill" "Spec"
 
 # ─────────────────────────────────────────────
-section "10. PROJECT.md templates have required sections"
+section "9. PROJECT.md templates have required sections"
 # ─────────────────────────────────────────────
 
 implement_sections=(
@@ -368,14 +393,15 @@ for section_name in "${spec_sections[@]}"; do
 done
 
 # ─────────────────────────────────────────────
-section "11. No project-specific leaks in core files"
+section "10. No project-specific leaks in core files"
 # ─────────────────────────────────────────────
 
 core_files=(
     "skills/implement/SKILL.md"
+    "skills/plan/SKILL.md"
     "skills/spec/SKILL.md"
-    "skills/implement/references/chunk-template.md"
-    "skills/implement/references/tracker-schema.md"
+    "skills/plan/references/chunk-template.md"
+    "skills/plan/references/tracker-schema.md"
     "skills/implement/references/quality-checklist.md"
     "skills/spec/references/spec-template.md"
     "skills/spec/references/clarification-taxonomy.md"
@@ -400,7 +426,7 @@ if ! $leak_found; then
 fi
 
 # ─────────────────────────────────────────────
-section "12. Agent frontmatter is valid"
+section "11. Agent frontmatter is valid"
 # ─────────────────────────────────────────────
 
 for agent in agents/*.md; do
@@ -415,13 +441,14 @@ for agent in agents/*.md; do
 done
 
 # ─────────────────────────────────────────────
-section "13. Implement SKILL.md references review agents"
+section "12. Skills reference their review agents"
 # ─────────────────────────────────────────────
 
-if grep -q "review-plan" "$implement_skill"; then
-    pass "Implement SKILL.md references review-plan agent"
+# review-plan is /plan's gate; review-impl + red-team are /implement's.
+if grep -q "review-plan" "$plan_skill"; then
+    pass "Plan SKILL.md references review-plan agent"
 else
-    fail "Implement SKILL.md does not reference review-plan agent"
+    fail "Plan SKILL.md does not reference review-plan agent"
 fi
 
 if grep -q "review-impl" "$implement_skill"; then
@@ -437,7 +464,7 @@ else
 fi
 
 # ─────────────────────────────────────────────
-section "14. SKILL.md frontmatter follows spec"
+section "13. SKILL.md frontmatter follows spec"
 # ─────────────────────────────────────────────
 
 check_skill_frontmatter() {
@@ -471,13 +498,14 @@ check_skill_frontmatter() {
 }
 
 check_skill_frontmatter "$implement_skill" "Implement SKILL.md"
+check_skill_frontmatter "$plan_skill" "Plan SKILL.md"
 check_skill_frontmatter "$spec_skill" "Spec SKILL.md"
 
 # ─────────────────────────────────────────────
-section "15. SKILL.md files are under 500 lines"
+section "14. SKILL.md files are under 500 lines"
 # ─────────────────────────────────────────────
 
-for skill_file in "$implement_skill" "$spec_skill"; do
+for skill_file in "$implement_skill" "$plan_skill" "$spec_skill"; do
     label="$(basename "$(dirname "$skill_file")")"
     lines="$(wc -l < "$skill_file")"
     if [[ "$lines" -le 510 ]]; then
@@ -488,7 +516,7 @@ for skill_file in "$implement_skill" "$spec_skill"; do
 done
 
 # ─────────────────────────────────────────────
-section "16. Example project configs are valid"
+section "15. Example project configs are valid"
 # ─────────────────────────────────────────────
 
 for config in skills/implement/project-configs/*.md; do
@@ -512,6 +540,59 @@ for config in skills/spec/project-configs/*.md; do
         fi
     done
 done
+
+# ─────────────────────────────────────────────
+section "16. No harness-specific mechanics in skill/agent prose"
+# ─────────────────────────────────────────────
+
+# devloop is harness-agnostic: skill and agent instructions describe
+# behavior, not the keystrokes/slash-commands/brand of any one harness.
+# Each pattern is anchored so it matches the mechanic, not an innocent
+# word (e.g. "/rename" must not match "removed/renamed").
+harness_patterns=(
+    'Shift\+Tab'
+    'Ctrl\+G'
+    '/compact([^a-zA-Z]|$)'
+    '/rename([^a-zA-Z]|$)'
+    '[-]-resume'
+    'Claude Code'
+    'Plan Mode'
+    'Normal Mode'
+)
+
+harness_leak=false
+for file in "${core_files[@]}"; do
+    for pat in "${harness_patterns[@]}"; do
+        if grep -qE "$pat" "$file" 2>/dev/null; then
+            fail "$file contains harness-specific mechanic matching /$pat/"
+            harness_leak=true
+        fi
+    done
+done
+if ! $harness_leak; then
+    pass "No harness-specific mechanics in skill/agent prose"
+fi
+
+# ─────────────────────────────────────────────
+section "17. No em dashes in published files"
+# ─────────────────────────────────────────────
+
+# The repo uses standard punctuation, not em dashes. Scan every published
+# markdown file (core skill/agent prose plus the top-level docs). evals/
+# and docs/ are not part of the release, so they are out of scope.
+em_dash_files=("${core_files[@]}" "README.md" "CHANGELOG.md" "PRIVACY.md")
+
+em_dash_found=false
+for file in "${em_dash_files[@]}"; do
+    [[ -f "$file" ]] || continue
+    if grep -q "—" "$file" 2>/dev/null; then
+        fail "$file contains an em dash (use standard punctuation)"
+        em_dash_found=true
+    fi
+done
+if ! $em_dash_found; then
+    pass "No em dashes in published files"
+fi
 
 # ─────────────────────────────────────────────
 # Summary

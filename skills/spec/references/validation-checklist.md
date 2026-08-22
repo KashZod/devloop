@@ -4,6 +4,11 @@ Run this checklist during Phase 4 after the spec is drafted and
 clarifications are resolved. Each point must be verified with
 specific evidence from the spec file.
 
+**Evidence rule:** Every WARN or FAIL must quote the exact spec line it
+refers to, the way the review agents quote a code line. Do not flag from
+memory or paraphrase, if you cannot point at the offending text, it is
+not a finding.
+
 Pass criteria: all 8 points pass, or remaining failures are
 documented in the spec's Notes section with rationale.
 

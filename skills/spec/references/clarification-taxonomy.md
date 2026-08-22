@@ -17,7 +17,7 @@ Categories marked Partial or Missing are candidates for
 `[NEEDS CLARIFICATION]` markers. Only promote to a marker when:
 - The ambiguity would materially change implementation or tests
 - No reasonable default exists
-- Multiple interpretations have significantly different implications
+- Multiple interpretations have materially different implications
 
 Make informed guesses for everything else and document in Assumptions.
 
@@ -110,7 +110,7 @@ What boundary conditions and concurrent scenarios exist?
 - Race conditions (rapid clicks, parallel requests)
 - Timezone and locale sensitivity
 - Unicode, emoji, RTL text in user input
-- Very long strings, very large files
+- Long strings, large files
 
 **Reasonable defaults:** If not specified, assume reasonable
 max limits for the platform, no special concurrent handling

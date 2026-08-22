@@ -1,0 +1,27 @@
+{
+  "name": "devloop",
+  "version": "3.0.0",
+  "description": "Spec, plan, implement, review: a test-driven development loop for AI coding agents. Three commands map to three gates, one per command (plus a convergence back-edge where /implement re-runs the plan gate): /spec (WHAT, spec validation), /plan (HOW, plan review), /implement (BUILD, conformance + adversarial red-team review).",
+  "author": {
+    "name": "KashZod"
+  },
+  "homepage": "https://github.com/KashZod/devloop",
+  "repository": "https://github.com/KashZod/devloop",
+  "license": "Apache-2.0",
+  "keywords": ["tdd", "specification", "code-review", "red-team", "workflow", "quality"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "devloop",
+    "shortDescription": "Spec -> plan -> implement TDD loop with independent review gates",
+    "longDescription": "A test-driven development loop for AI coding agents: /spec clarifies WHAT, /plan decides HOW and gates the plan, /implement builds it with TDD and independent conformance plus adversarial review. Review agents run in isolated context to cut author-evaluator bias.",
+    "developerName": "KashZod",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://github.com/KashZod/devloop",
+    "defaultPrompt": [
+      "Use /spec to clarify a feature into user stories and acceptance criteria.",
+      "Use /plan to decompose the spec into a reviewed chunk plan.",
+      "Use /implement to build the plan with TDD and independent review."
+    ]
+  }
+}

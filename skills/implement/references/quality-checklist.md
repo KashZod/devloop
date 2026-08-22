@@ -1,8 +1,31 @@
 # 8-Point Quality Verification Checklist
 
-Run this checklist after all implementation chunks are complete.
-Each point should be verified with specific evidence
-(test results, grep output, build logs).
+Run this checklist in `/implement` Phase 3 (Quality Verification), after
+all implementation chunks are complete. Each point should be verified
+with specific evidence (test results, grep output, build logs).
+
+## Shared concern vocabulary
+
+devloop uses one concern vocabulary across the loop so the reviewers
+don't drift into three overlapping dialects. The seven concerns below
+(points 1-7) are the shared set; the eighth differs by phase because the
+target differs:
+
+| # | Shared concern | `review-plan` (plan-time) | Phase 3 (code-time) |
+|---|---|---|---|
+| 1 | Completeness | every criterion has a chunk (+ traceability) | every criterion is met |
+| 2 | Correctness | the plan's assumptions hold | data/logic is correct |
+| 3 | Gaps (Functional) | no dead code / missing wiring planned | none introduced |
+| 4 | Standards | plan follows conventions | code follows conventions |
+| 5 | Regression | all affected tests are in chunks | suite still green |
+| 6 | Robustness | error/empty paths are planned | error/empty paths hold |
+| 7 | Gaps (Architectural) | boundaries respected in the plan | respected in the code |
+| 8 | *(phase-specific)* | **TDD Quality** of the plan | **Blindspots** in the code |
+
+`review-plan` applies concerns 1-7 to the plan plus TDD Quality;
+`review-impl` verifies conformance/acceptance (a narrower slice, see its
+own file); this checklist applies 1-7 to the code plus Blindspots. Same
+words, same order, different target.
 
 ---
 
@@ -177,7 +200,8 @@ Verify edge cases that automated tests may miss.
 **Self-evaluation warning:** This is the hardest point to
 self-assess honestly. Generators naturally focus on what they
 built, not what they missed. The `red-team` agent running in
-parallel (see Phase 6) catches what self-evaluation misses, it
+parallel (see Phase 3 Quality Verification) catches what
+self-evaluation misses, it
 reviews the diff adversarially in a fresh context, so it isn't
 anchored on what you intended to build.
 

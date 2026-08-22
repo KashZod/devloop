@@ -85,7 +85,7 @@ Good acceptance criteria are:
 A resuming session reads `files_create`/`files_modify` (where),
 `name` (what), `tdd` (test conditions), and `acceptance_criteria`
 (pass/fail) directly. Use the optional `notes` field only for hints
-those required fields can't carry, typically a `PATTERN: file:function`
+those required fields can't carry, such as a `PATTERN: file:function`
 reference or a `DO NOT: ...` pitfall.
 
 ---

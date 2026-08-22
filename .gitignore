@@ -13,3 +13,5 @@ docs/
 
 # Node (if users clone into a node project)
 node_modules/
+
+evals/work/
