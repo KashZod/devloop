@@ -39,7 +39,6 @@ required_files=(
     "README.md"
     # Implement skill
     "skills/implement/SKILL.md"
-    "skills/implement/PROJECT.md"
     "skills/implement/references/quality-checklist.md"
     # Plan skill (owns the plan artifacts: tracker schema + chunk template)
     "skills/plan/SKILL.md"
@@ -47,7 +46,6 @@ required_files=(
     "skills/plan/references/tracker-schema.md"
     # Spec skill
     "skills/spec/SKILL.md"
-    "skills/spec/PROJECT.md"
     "skills/spec/references/spec-template.md"
     "skills/spec/references/clarification-taxonomy.md"
     "skills/spec/references/validation-checklist.md"
@@ -379,9 +377,12 @@ check_lessons "$plan_skill" "Plan"
 check_lessons "$spec_skill" "Spec"
 
 # ─────────────────────────────────────────────
-section "9. PROJECT.md templates have required sections"
+section "9. project-configs examples have required sections"
 # ─────────────────────────────────────────────
 
+# The project-configs examples are the canonical starting templates a user
+# copies into .devloop/config.md and .devloop/domain.md. Any one of them
+# could be the copied file, so each must carry the full section set.
 implement_sections=(
     "Build & Test Commands"
     "Architecture Patterns"
@@ -391,12 +392,15 @@ implement_sections=(
     "Documentation Location"
 )
 
-for section_name in "${implement_sections[@]}"; do
-    if grep -q "$section_name" "skills/implement/PROJECT.md"; then
-        pass "Implement PROJECT.md has \"$section_name\""
-    else
-        fail "Implement PROJECT.md missing \"$section_name\""
-    fi
+for cfg in skills/implement/project-configs/*.md; do
+    name="$(basename "$cfg")"
+    for section_name in "${implement_sections[@]}"; do
+        if grep -q "$section_name" "$cfg"; then
+            pass "$name has \"$section_name\""
+        else
+            fail "$name missing \"$section_name\""
+        fi
+    done
 done
 
 spec_sections=(
@@ -406,12 +410,15 @@ spec_sections=(
     "Quality Standards"
 )
 
-for section_name in "${spec_sections[@]}"; do
-    if grep -q "$section_name" "skills/spec/PROJECT.md"; then
-        pass "Spec PROJECT.md has \"$section_name\""
-    else
-        fail "Spec PROJECT.md missing \"$section_name\""
-    fi
+for cfg in skills/spec/project-configs/*.md; do
+    name="$(basename "$cfg")"
+    for section_name in "${spec_sections[@]}"; do
+        if grep -q "$section_name" "$cfg"; then
+            pass "$name has \"$section_name\""
+        else
+            fail "$name missing \"$section_name\""
+        fi
+    done
 done
 
 # ─────────────────────────────────────────────
@@ -623,8 +630,9 @@ section "18. Config discovery points at .devloop/"
 
 # The plugin-install-safe convention: skills and agents read project
 # config from a .devloop/ directory in the project root, not from a
-# PROJECT.md in the read-only plugin cache. Guard against reintroducing
-# the cache pointer, and require each skill to name the .devloop/ home.
+# copied-in template in the read-only plugin cache. Guard against
+# reintroducing the cache pointer, and require each skill to name the
+# .devloop/ home.
 pointer_found=false
 for file in "${core_files[@]}"; do
     if grep -q "plugin's skill directory" "$file" 2>/dev/null; then

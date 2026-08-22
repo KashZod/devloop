@@ -119,8 +119,8 @@ that is the default and is correct.
 
 - Load the domain config for domain context, architecture overview,
   existing patterns, and domain-specific concerns. Resolve it in this
-  order: `.devloop/domain.md` in the project root, then a `PROJECT.md`
-  beside this skill (the copied-in fallback), then proceed generically
+  order: `.devloop/domain.md` in the project root, else proceed
+  generically
 - These inform edge case detection, affected component identification,
   and project-specific validation in Phase 4
 - `domain.md` holds only domain knowledge. The one operational path `/spec`

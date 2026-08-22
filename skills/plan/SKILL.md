@@ -113,10 +113,9 @@ the default and is correct.
 
 Load the project's engineering config (build/test/lint commands,
 architecture rules, standards, and blindspots, the same context
-`/implement` uses). Resolve it in this order: `.devloop/config.md` in
-the project root, then the copied-in `PROJECT.md` engineering template
-(shipped with the implement skill). Verify the change aligns with it. If
-it's absent or only template placeholders (`YOUR_*_HERE`), proceed without it:
+`/implement` uses). Resolve it as `.devloop/config.md` in the project
+root. Verify the change aligns with it. If it's absent or only template
+placeholders (`YOUR_*_HERE`), proceed without it:
 infer the test/build commands from the project (build files, CI config,
 `Makefile`), confirm them with the user before recording them in the
 tracker, note the miss in the tracker, and suggest creating one.

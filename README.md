@@ -191,15 +191,12 @@ project root:
   trackers/    # impl-tracker-<feature>.json, written by /plan
 ```
 
-Each skill and agent resolves its config in this order: `.devloop/<file>`
-in your project first, then the copied-in `PROJECT.md` template, then
-generic mode if neither exists (the loop still runs, with less
-project-specific insight). The `PROJECT.md` template is the fallback only
-when devloop is copied into your project rather than installed as a plugin;
-the engineering config ships as the implement skill's `PROJECT.md`, the
-domain config as the spec skill's. This is why a plugin install works: the
-skills live in a read-only cache, but they read `.devloop/` from your
-project, not the cache.
+Each skill and agent resolves its config as `.devloop/<file>` in your
+project, else generic mode (the loop still runs, with less
+project-specific insight). This is why a plugin install works: the skills
+live in a read-only cache, but they read `.devloop/` from your project,
+not the cache. There is no copied-in fallback; `.devloop/` is the only
+project-config source.
 
 The fastest start is to copy the closest example to `.devloop/config.md`
 from

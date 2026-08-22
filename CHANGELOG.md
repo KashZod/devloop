@@ -19,11 +19,12 @@ resolves in the user's project) and gives trackers a stable home outside
     overview, domain-specific concerns, existing patterns, quality
     standards), read by `/spec`.
   - `trackers/`, home for `impl-tracker-<feature>.json`, written by `/plan`.
-- **Two-tier discovery**: each skill and agent resolves config as
-  `.devloop/<file>` in the project, then the copied-in `PROJECT.md` template
-  that ships with the skills, then generic mode. This is why a plugin install
-  now works: the read-only cache holds the skills, but they read `.devloop/`
-  from the project.
+- **Config discovery**: each skill and agent resolves config as
+  `.devloop/<file>` in the project, else generic mode. This is why a plugin
+  install now works: the read-only cache holds the skills, but they read
+  `.devloop/` from the project. There is no copied-in `PROJECT.md` fallback
+  (the old template files are removed); `.devloop/` is the only
+  project-config source.
 - **`validate.sh` section 18**: fails if a core file reintroduces the
   plugin-cache config pointer ("plugin's skill directory") and requires each
   skill and review agent to name the `.devloop/` home.
@@ -56,11 +57,11 @@ resolves in the user's project) and gives trackers a stable home outside
   read-fallback. Move any existing `docs/impl-tracker-*.json` into
   `.devloop/trackers/`, or pass an explicit tracker path when invoking
   `/implement` or the review agents.
-- **Split an old `PROJECT.md`.** If you relied on a copied-in `PROJECT.md`,
-  split it into `.devloop/config.md` (engineering settings and paths) and
-  `.devloop/domain.md` (domain knowledge). The copied-in `PROJECT.md`
-  templates still work as the fallback, but `.devloop/` takes precedence and
-  is what a plugin install reads.
+- **Migrate an old `PROJECT.md`.** The copied-in `PROJECT.md` fallback is
+  gone; `.devloop/` is the only project-config source. Split any old
+  `PROJECT.md` into `.devloop/config.md` (engineering settings and paths)
+  and `.devloop/domain.md` (domain knowledge), or copy the closest
+  `project-configs/` example as a starting point.
 
 ### Fixed
 - **Valid Claude Code manifest.** `.claude-plugin/plugin.json` no longer

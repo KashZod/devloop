@@ -56,7 +56,7 @@ all chunks.
 Read these files (skip any that don't exist):
 - The plan/tracker document
 - The project rules file, `CLAUDE.md` or `AGENTS.md` (project rules and architecture)
-- The project's engineering config `.devloop/config.md` (build commands, standards; the copied-in `PROJECT.md` engineering template shipped with the implement skill is the fallback)
+- The project's engineering config `.devloop/config.md` (build commands, standards)
 - The spec the tracker names in `spec_doc` (or, if absent, any spec in the configured spec directory: the spec-directory setting in `.devloop/config.md`, default `docs/specs/`)
 
 ### Step 2: Build the Review Map

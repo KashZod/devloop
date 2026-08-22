@@ -70,10 +70,9 @@ all chunks complete triggers review-impl + red-team in Phase 3.
 
 The engineering config (build/test/lint commands, standards, blindspots,
 and the spec/tracker directory settings) resolves in this order:
-`.devloop/config.md` in the project root, then a `PROJECT.md` beside this
-skill (the copied-in fallback), then generic mode if neither exists. Later
-mentions of `.devloop/config.md` in this skill refer to whichever of these
-resolved.
+`.devloop/config.md` in the project root, else generic mode. Later
+mentions of `.devloop/config.md` in this skill refer to that file when it
+exists.
 
 ### 1.1 Locate the Tracker
 

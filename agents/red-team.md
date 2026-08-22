@@ -171,10 +171,9 @@ special cases.
 Find the guidance files that govern the changed code: the repo-root project
 rules file (`CLAUDE.md` or `AGENTS.md`), plus any such file (including local
 overrides) in a directory that is an ancestor of a changed file (it applies
-only to files at or below it), plus `.devloop/config.md` in the project root (or the
-copied-in `PROJECT.md` engineering template shipped with the implement skill,
-when devloop is copied in rather than installed as a plugin). Read each that
-exists, then check the diff for clear violations of the rules they state.
+only to files at or below it), plus `.devloop/config.md` in the project
+root. Read each that exists, then check the diff for clear violations of
+the rules they state.
 
 Only flag a violation when you can quote the exact rule and the exact line
 that breaks it, no style preferences, no vague "spirit of the doc"
