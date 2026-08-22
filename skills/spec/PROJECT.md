@@ -1,9 +1,10 @@
-# PROJECT.md - Project-Specific Configuration
+# devloop domain config
 
-Copy this file into your skill directory and fill in the sections
-for your project. The spec skill references this file for domain
-knowledge, architecture context, and project-specific validation
-criteria.
+Create this as `.devloop/domain.md` in your project root and fill in the
+sections. The `/spec` skill reads it for domain knowledge, architecture
+context, and project-specific validation criteria. If devloop is copied
+into your project instead of installed as a plugin, a `PROJECT.md` beside
+the skill still works as the fallback.
 
 ---
 
@@ -89,49 +90,3 @@ Phase 4 (Validate).
 - [ ] Example: API changes include backward compatibility criteria
 - [ ] Example: UI features include accessibility acceptance criteria
 - [ ] Example: Features touching sync have conflict resolution criteria
-
----
-
-## Output Conventions
-
-Where spec files are written and how they're named.
-
-```text
-# Spec file location (default: docs/specs/)
-# Examples:
-#   docs/specs/
-#   .github/specs/
-#   wiki/specs/
-YOUR_SPEC_DIRECTORY_HERE
-
-# File naming: kebab-case by default
-# Examples:
-#   user-search.md
-#   rate-limiting.md
-#   multi-provider-sync.md
-```
-
-**Note:** Add the spec directory to `.gitignore` if specs are
-ephemeral (consumed by TDD then discarded). Keep them tracked
-if they serve as living documentation.
-
----
-
-## Commit Conventions
-
-```text
-# Author (if overriding default git config)
-# Example: --author="name <email>"
-
-# Message format
-# Examples:
-#   Conventional Commits: feat: description
-#   Imperative: Add the thing
-#   Ticket prefix: [PROJ-123] Add the thing
-
-# Trailers to include or exclude
-# Example: No Co-Authored-By trailer
-
-# Other rules
-# Example: Separate commits per feature
-```

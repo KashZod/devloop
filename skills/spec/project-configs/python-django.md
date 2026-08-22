@@ -1,4 +1,4 @@
-# PROJECT.md - Python / Django
+# .devloop/domain.md example - Python / Django
 
 Example configuration for a Django web application with
 Django REST Framework.
@@ -56,22 +56,3 @@ URLs -> Views (or ViewSets) -> Services/Managers -> Models -> PostgreSQL
 - [ ] API stories include serialization format criteria
 - [ ] Features with user input specify validation rules
 - [ ] Query-heavy features note expected query count
-
----
-
-## Output Conventions
-
-```text
-docs/specs/
-```
-
----
-
-## Commit Conventions
-
-```text
-# Message format: conventional commits
-fix: description
-feat: description
-chore: description
-```

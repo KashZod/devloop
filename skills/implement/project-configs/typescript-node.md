@@ -1,4 +1,4 @@
-# PROJECT.md - TypeScript / Node.js
+# .devloop/config.md example - TypeScript / Node.js
 
 Example configuration for a TypeScript project using Node.js,
 with Jest or Vitest for testing.

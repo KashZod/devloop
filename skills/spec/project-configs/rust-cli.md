@@ -1,4 +1,4 @@
-# PROJECT.md - Rust / CLI
+# .devloop/domain.md example - Rust / CLI
 
 Example configuration for a Rust command-line tool.
 
@@ -53,22 +53,3 @@ CLI arg parsing (clap) -> Command handlers -> Core library -> File system / netw
 - [ ] Pipe-compatible: no interactive prompts unless --interactive
 - [ ] Help text acceptance criteria for new commands/flags
 - [ ] Performance: large input benchmark expectations
-
----
-
-## Output Conventions
-
-```text
-docs/specs/
-```
-
----
-
-## Commit Conventions
-
-```text
-# Message format: conventional commits
-fix: description
-feat: description
-refactor: description
-```

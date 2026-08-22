@@ -164,16 +164,16 @@ target, standard logging at info/error levels.
 
 ### 9. Domain-Specific Concerns
 
-Project-specific patterns from `PROJECT.md`.
+Project-specific patterns from `.devloop/domain.md`.
 
 **Check for:**
-- Domain-specific edge cases listed in PROJECT.md
+- Domain-specific edge cases listed in .devloop/domain.md
 - Industry standards or regulations that apply
 - Known domain pitfalls from the project's Lessons Learned
 - Patterns that every feature in this project must address
 
 This category has no reasonable defaults, it's entirely
-project-specific. If PROJECT.md doesn't exist or has no
+project-specific. If .devloop/domain.md doesn't exist or has no
 domain concerns listed, skip this category.
 
 ---

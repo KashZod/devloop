@@ -1,4 +1,4 @@
-# PROJECT.md - Android / Kotlin / Compose
+# .devloop/config.md example - Android / Kotlin / Compose
 
 Example configuration for an Android project using Kotlin, Jetpack
 Compose, Room, and Hilt.

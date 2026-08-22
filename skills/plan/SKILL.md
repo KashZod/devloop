@@ -76,8 +76,9 @@ from Phase 3 triggers the review gate in Phase 5.
 
 - Read the user's request carefully
 - Identify: new feature, enhancement, bug fix, refactor, or test
-- Check the spec directory (from `PROJECT.md`, default `docs/specs/`)
-  for an existing spec file matching the feature. If found, use it as
+- Check the spec directory (the spec-directory setting in
+  `.devloop/config.md`, default `docs/specs/`) for an existing spec
+  file matching the feature. If found, use it as
   primary input, its user stories, acceptance criteria, and edge cases
   become the basis for chunk decomposition. (Specs are produced by the
   companion `/spec` skill, which writes to the same configurable
@@ -110,10 +111,12 @@ the default and is correct.
 
 ### 1.4 Check Project Architecture Patterns
 
-Load the project's engineering context `PROJECT.md` (build/test/lint
-commands, architecture rules, standards, and blindspots, the same
-context `/implement` uses) and verify the change aligns with it. If it's
-absent or only template placeholders (`YOUR_*_HERE`), proceed without it:
+Load the project's engineering config (build/test/lint commands,
+architecture rules, standards, and blindspots, the same context
+`/implement` uses). Resolve it in this order: `.devloop/config.md` in
+the project root, then the copied-in `PROJECT.md` engineering template
+(shipped with the implement skill). Verify the change aligns with it. If
+it's absent or only template placeholders (`YOUR_*_HERE`), proceed without it:
 infer the test/build commands from the project (build files, CI config,
 `Makefile`), confirm them with the user before recording them in the
 tracker, note the miss in the tracker, and suggest creating one.
@@ -130,7 +133,7 @@ Common patterns to verify:
 
 - Check constructor parameters, return types, method signatures
 - Verify DI bindings exist for new dependencies
-- Cross-reference project guidelines and `PROJECT.md`
+- Cross-reference project guidelines and the engineering config
 - Run these checks in parallel if your harness supports parallel tool
   calls, otherwise sequentially
 
@@ -170,8 +173,9 @@ Layer N (final):       Regression + quality verification
 
 ### 3.1 Check for an Existing Tracker
 
-Before writing, check the tracker location (from `PROJECT.md`, default
-`docs/`) for an existing `impl-tracker-<feature>.json`. If one exists,
+Before writing, check the tracker location (the tracker-directory
+setting in `.devloop/config.md`, default `.devloop/trackers/`)
+for an existing `impl-tracker-<feature>.json`. If one exists,
 you are revisiting or re-gating a plan (an `/implement` convergence round
 routed back here, or a resumed session), not starting fresh:
 
@@ -187,16 +191,18 @@ routed back here, or a resumed session), not starting fresh:
   edits chunks, it does not re-serialize a fresh object with the schema
   defaults. Resetting `convergence_rounds` to `0` here would defeat the
   bounded-loop cap it exists to make crash-safe.
-- If the plan has genuinely changed shape (the old chunks no longer
-  apply), confirm with the user before discarding completed chunks, the
-  same way `/spec` Phase 1.5 asks "update or start fresh?"
+- If the old chunks no longer apply, confirm with the user before
+  discarding completed chunks, the same way `/spec` Phase 1.5 asks
+  "update or start fresh?"
 
 Only when no tracker exists do you create one from scratch in 3.2.
 
 ### 3.2 Create or Update the JSON Tracker
 
 Create (or update per 3.1) a tracker file following the schema in
-[tracker-schema.md](references/tracker-schema.md).
+[tracker-schema.md](references/tracker-schema.md). Write it to the
+tracker directory (the tracker-directory setting in `.devloop/config.md`,
+default `.devloop/trackers/`); create the directory if it doesn't exist.
 The tracker is always present, even for single-chunk features
 (see §Single-Chunk Features in the schema). Record the spec path noted in
 Phase 1.1 in the `spec_doc` field. Create the tracker with
@@ -298,7 +304,7 @@ Output to the user:
 - Plan review verdict (and any warnings)
 
 ```
-Next: /implement <feature> (tracker: docs/impl-tracker-<feature>.json)
+Next: /implement <feature> (tracker: .devloop/trackers/impl-tracker-<feature>.json)
 ```
 
 If the review has warnings, note them:
@@ -347,7 +353,7 @@ instead of tests, and suggest a structured build order.
 ## Commit Guidance
 
 Do not commit proactively. Wait for the user to request it.
-Refer to `PROJECT.md` for project-specific commit conventions
+Refer to `.devloop/config.md` for project-specific commit conventions
 (author, message format, trailers).
 
 ---

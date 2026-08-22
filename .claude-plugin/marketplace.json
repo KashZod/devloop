@@ -1,0 +1,17 @@
+{
+  "name": "kashzod",
+  "description": "KashZod's plugin catalog. Hosts devloop, a spec-plan-implement TDD loop with independent review-agent gates.",
+  "owner": {
+    "name": "KashZod",
+    "url": "https://github.com/KashZod"
+  },
+  "plugins": [
+    {
+      "name": "devloop",
+      "source": "./",
+      "description": "Spec, plan, implement, review: a test-driven development loop for AI coding agents. Three commands map to three gates, one per command: /spec (WHAT), /plan (HOW), /implement (BUILD), with independent review agents (review-plan, review-impl, red-team) as hard gates.",
+      "license": "Apache-2.0",
+      "keywords": ["tdd", "specification", "code-review", "red-team", "workflow", "quality"]
+    }
+  ]
+}

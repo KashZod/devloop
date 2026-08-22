@@ -1,8 +1,10 @@
-# PROJECT.md - Project-Specific Configuration
+# devloop engineering config
 
-Copy this file into your skill directory and fill in the sections
-for your project. The TDD skill references this file for commands,
-patterns, and conventions that vary between projects.
+Create this as `.devloop/config.md` in your project root and fill in the
+sections. `/plan`, `/implement`, and the review agents read it for
+build/test/lint commands, architecture rules, standards, and blindspots.
+If devloop is copied into your project instead of installed as a plugin,
+a `PROJECT.md` beside the skill still works as the fallback.
 
 ---
 
@@ -120,4 +122,17 @@ Where should post-implementation docs be created?
 #   .github/
 #   Same directory as changed code
 YOUR_DOCS_DIRECTORY_HERE
+```
+
+## Spec and Tracker Locations
+
+Where `/spec` writes specs and `/plan` writes trackers. Both fall back to
+the defaults shown if left unset.
+
+```text
+# Spec directory (default: docs/specs/)
+YOUR_SPEC_DIRECTORY_HERE
+
+# Tracker directory (default: .devloop/trackers/)
+YOUR_TRACKER_DIRECTORY_HERE
 ```

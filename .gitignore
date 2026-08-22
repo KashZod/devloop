@@ -11,6 +11,9 @@
 # Working docs
 docs/
 
+# devloop's own dev-time state (this repo dogfoods the convention it ships)
+.devloop/
+
 # Node (if users clone into a node project)
 node_modules/
 

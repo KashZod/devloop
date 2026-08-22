@@ -1,4 +1,4 @@
-# PROJECT.md - Android / Kotlin / Compose
+# .devloop/domain.md example - Android / Kotlin / Compose
 
 Example configuration for an Android project using Kotlin, Jetpack
 Compose, Room, and Hilt.
@@ -55,26 +55,3 @@ UI (Jetpack Compose) -> ViewModel -> Domain Layer (Coordinators, Readers) -> Roo
 - [ ] Features modifying data have undo/confirmation criteria
 - [ ] Features with user input have validation acceptance criteria
 - [ ] Accessibility: contentDescription specified for interactive elements
-
----
-
-## Output Conventions
-
-```text
-docs/specs/
-```
-
----
-
-## Commit Conventions
-
-```text
-# Author
---author="name <email>"
-
-# Message format: conventional commits
-fix: description
-feat: description
-
-# No Co-Authored-By trailer
-```

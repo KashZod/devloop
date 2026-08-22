@@ -1,6 +1,6 @@
 {
   "name": "devloop",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Spec, plan, implement, review: a test-driven development loop for AI coding agents. Three commands map to three gates, one per command (plus a convergence back-edge where /implement re-runs the plan gate): /spec (WHAT, spec validation), /plan (HOW, plan review), /implement (BUILD, conformance + adversarial red-team review).",
   "author": {
     "name": "KashZod"

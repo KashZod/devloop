@@ -18,7 +18,7 @@ where resolving it costs a question instead of a rewrite.
 
 | Workflow Phase | Spec Phase | What Happens |
 |---|---|---|
-| **Explore** | Phase 1: Explore | Read files, understand context, check PROJECT.md |
+| **Explore** | Phase 1: Explore | Read files, understand context, check `.devloop/domain.md` |
 | **Plan** | Phase 2: Specify | User stories, acceptance criteria, edge cases |
 | **Plan** | Phase 3: Clarify | Interactive disambiguation (max 5 questions) |
 | **Plan** | Phase 4: Validate | 8-point spec quality checklist |
@@ -117,17 +117,22 @@ that is the default and is correct.
 
 ### 1.3 Read Project Context
 
-- Load `PROJECT.md` for domain context, architecture overview,
-  existing patterns, and domain-specific concerns
+- Load the domain config for domain context, architecture overview,
+  existing patterns, and domain-specific concerns. Resolve it in this
+  order: `.devloop/domain.md` in the project root, then a `PROJECT.md`
+  beside this skill (the copied-in fallback), then proceed generically
 - These inform edge case detection, affected component identification,
   and project-specific validation in Phase 4
-- If `PROJECT.md` doesn't exist or contains only template
+- `domain.md` holds only domain knowledge. The one operational path `/spec`
+  needs, the spec directory, lives in `.devloop/config.md` and is read where
+  it's used (Phase 1.5 and 2.7)
+- If neither file exists or the file contains only template
   placeholders (`YOUR_*_HERE`), proceed without it, the generic
   taxonomy categories still apply
-- If the project clearly needs a `PROJECT.md` (complex domain,
+- If the project clearly needs a domain config (complex domain,
   multiple conventions, domain-specific concerns), note this in
   the spec's Notes section as a recommendation. Don't block the
-  spec process, create the spec first, suggest PROJECT.md after
+  spec process, create the spec first, suggest `.devloop/domain.md` after
 
 ### 1.4 Identify Affected Components
 
@@ -138,8 +143,9 @@ that is the default and is correct.
 
 ### 1.5 Check for Existing Spec
 
-- Check the spec directory (from `PROJECT.md`, default `docs/specs/`)
-  for an existing spec file matching this feature
+- Check the spec directory (the spec-directory setting in
+  `.devloop/config.md`, default `docs/specs/`) for an existing spec
+  file matching this feature
 - If found, load it and show a summary to the user
 - Ask: "A spec already exists for this feature. Update it, or
   start fresh?"
@@ -175,7 +181,7 @@ For each user story, write testable acceptance criteria:
 - Use Given/When/Then format for every criterion
 - P1 stories need both happy-path and error-path criteria
 - P2/P3 stories need at least one criterion each
-- Scan PROJECT.md Quality Standards while writing, criteria
+- Scan the domain config's Quality Standards while writing, criteria
   categories like accessibility are cheaper to add now than to
   discover in Phase 4 validation
 - See spec-template.md §Acceptance Criteria for complexity hints
@@ -195,7 +201,7 @@ Scan all 9 categories against the feature:
 - Document edge cases discovered in the spec's Edge Cases section
 - Tag each edge case with its taxonomy category: `[Category N]`
 - At minimum for P1 features: empty state, error state, boundary values
-- Check PROJECT.md domain-specific concerns (Category 9)
+- Check the domain config's domain-specific concerns (Category 9)
 
 ### 2.5 Document Assumptions
 
@@ -220,8 +226,9 @@ materially impacts the spec:
 ### 2.7 Write Spec File
 
 - Create the spec directory if it doesn't exist
-- Write the spec to the configured location (default:
-  `docs/specs/<feature-name>.md`) using kebab-case for the filename
+- Write the spec to the configured location (the spec-directory
+  setting in `.devloop/config.md`, default `docs/specs/<feature-name>.md`)
+  using kebab-case for the filename
 - Include all sections from the template
 - Set frontmatter status to `Draft`
 - **Size check:** Standard features should target ~80-150 lines
@@ -324,7 +331,7 @@ For each point, verify with specific evidence from the spec:
 
 ### 4.3 Project-Specific Validation
 
-Using PROJECT.md (already loaded in Phase 1), run the
+Using the domain config (already loaded in Phase 1), run the
 project-specific checks per validation-checklist.md
 §Project-Specific Validation.
 
@@ -453,8 +460,8 @@ existing tracker and `review-plan` re-gates.
 10. **Check Quality Standards During Specification, Not Just Validation** -
     Phase 4 catches missing criteria categories (accessibility, offline
     behavior) but fixing them there costs a validation iteration. Scan
-    PROJECT.md Quality Standards during Phase 2.3 while writing criteria
-   , it's cheaper to include them upfront than to discover them late
+    the domain config's Quality Standards during Phase 2.3 while writing
+    criteria, it's cheaper to include them upfront than to discover them late
 
 ---
 
@@ -470,5 +477,5 @@ or fresh start.
 ## Commit Guidance
 
 Do not commit proactively. Wait for the user to request it.
-Refer to `PROJECT.md` for project-specific commit conventions
+Refer to `.devloop/config.md` for project-specific commit conventions
 (author, message format, trailers).

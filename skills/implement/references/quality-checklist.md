@@ -98,7 +98,7 @@ grep -r "OldTypeName" src/
 grep -r "TODO\|FIXME" src/ --include="*.ext"
 
 # Run linter to catch unused imports/variables
-# (use project's lint command from PROJECT.md)
+# (use project's lint command from .devloop/config.md)
 ```
 
 **Common misses:**
@@ -117,12 +117,12 @@ platform conventions.
 
 **How to check:**
 
-- Cross-reference project guidelines (CLAUDE.md or equivalent)
+- Cross-reference project guidelines (`CLAUDE.md`, `AGENTS.md`, or equivalent)
 - Verify framework conventions (component patterns, naming)
 - Check naming conventions (language style, package/module structure)
 - Verify architecture layers are respected
 
-**Project-specific standards:** See `PROJECT.md` §Standards.
+**Project-specific standards:** See `.devloop/config.md` §Standards.
 
 ---
 
@@ -132,7 +132,7 @@ Verify existing functionality isn't broken.
 
 **How to check:**
 
-Run the project's test, build, and lint commands (see `PROJECT.md`).
+Run the project's test, build, and lint commands (see `.devloop/config.md`).
 
 **Evidence to record:**
 
@@ -184,7 +184,7 @@ grep -r "import.*data\." src/ui/ --include="*.ext"
 grep -r "import.*db\." src/controllers/ --include="*.ext"
 ```
 
-**Architecture rules to verify (see PROJECT.md):**
+**Architecture rules to verify (see .devloop/config.md):**
 
 - Layer boundaries: UI -> Domain -> Data (no shortcuts)
 - Test doubles match convention (fakes vs mocks)
@@ -214,7 +214,7 @@ anchored on what you intended to build.
 - [ ] **Future migration**: Will this design need breaking changes
   later? Document the migration path
 
-**Platform-specific blindspots (see PROJECT.md §Blindspots):**
+**Platform-specific blindspots (see .devloop/config.md §Blindspots):**
 
 Common examples across platforms:
 - Web: CORS, CSP, XSS, accessibility, browser compat

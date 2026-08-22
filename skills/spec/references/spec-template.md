@@ -1,8 +1,9 @@
 # Spec Template
 
 This is the output format for spec files. The `/spec` skill writes
-specs to the location configured in `PROJECT.md` (default:
-`docs/specs/<feature-name>.md`). Use kebab-case for filenames.
+specs to the location configured in `.devloop/config.md` (the
+spec-directory setting, default `docs/specs/<feature-name>.md`). Use
+kebab-case for filenames.
 
 Load this file during Phase 2 (Specify) to understand the required
 structure.
@@ -148,7 +149,7 @@ spec-version: 1                # Bumped when spec is re-run/updated
 - Focus on scenarios that would break a naive implementation
 - Cross-reference taxonomy categories in brackets: `[Category 6]`
 - At minimum for P1 features: empty state, error state, boundary values
-- Domain-specific concerns from PROJECT.md get their own items
+- Domain-specific concerns from .devloop/domain.md get their own items
 
 ### Out of Scope
 

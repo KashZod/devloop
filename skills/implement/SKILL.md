@@ -68,15 +68,23 @@ all chunks complete triggers review-impl + red-team in Phase 3.
 
 ## Phase 1: Load the Plan
 
+The engineering config (build/test/lint commands, standards, blindspots,
+and the spec/tracker directory settings) resolves in this order:
+`.devloop/config.md` in the project root, then a `PROJECT.md` beside this
+skill (the copied-in fallback), then generic mode if neither exists. Later
+mentions of `.devloop/config.md` in this skill refer to whichever of these
+resolved.
+
 ### 1.1 Locate the Tracker
 
 - Find the tracker `/plan` produced (filename `impl-tracker-<feature>.json`;
-  default directory from `PROJECT.md`, else `docs/`)
+  the tracker-directory setting in `.devloop/config.md`, default
+  `.devloop/trackers/`)
 - If more than one matches, confirm which feature with the user
 - Read the plan/spec files the tracker references (`plan_doc`,
   `design_doc`, and `spec_doc`, falling back to any file in the configured
-  spec directory (from `PROJECT.md`, default `docs/specs/`) only if
-  `spec_doc` is absent) for chunk detail
+  spec directory (the spec-directory setting in `.devloop/config.md`,
+  default `docs/specs/`) only if `spec_doc` is absent) for chunk detail
 
 ### 1.2 Verify the Plan-Review Gate
 
@@ -170,8 +178,8 @@ rewrite or duplicate them.
 
 ### 2.4 Run Tests, Expect Failure
 
-Run the project's test command (see `PROJECT.md`) targeting the specific
-test class. Confirm tests fail for the right reason (compile error or
+Run the project's test command (see `.devloop/config.md`) targeting the
+specific test class. Confirm tests fail for the right reason (compile error or
 assertion failure, not infrastructure).
 
 ### 2.5 Implement Production Code (Green)
@@ -280,8 +288,9 @@ Merge findings. Address every `red-team` **FAIL** (CONFIRMED
 correctness) and every `review-impl` FAIL before completing; treat WARN
 as a judgment call. Re-run the suite after any fix.
 
-**No project rule file?** When neither `PROJECT.md` nor `CLAUDE.md`
-exists, `review-impl` still defers standards and architecture to
+**No project rule file?** When neither `.devloop/config.md` nor a project
+rules file (`CLAUDE.md`/`AGENTS.md`) exists, `review-impl` still defers
+standards and architecture to
 `red-team`, but `red-team`'s conventions angle has no rules to quote and
 returns nothing, so those concerns fall through the gap between the two
 agents. Cover them yourself: run checklist points 4 (Standards) and 7
@@ -445,7 +454,7 @@ instead of creating a new one.
 ## Commit Guidance
 
 Do not commit proactively. Wait for the user to request it.
-Refer to `PROJECT.md` for project-specific commit conventions
+Refer to `.devloop/config.md` for project-specific commit conventions
 (author, message format, trailers).
 
 ---

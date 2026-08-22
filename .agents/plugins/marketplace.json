@@ -1,0 +1,20 @@
+{
+  "name": "kashzod",
+  "interface": {
+    "displayName": "KashZod"
+  },
+  "plugins": [
+    {
+      "name": "devloop",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/KashZod/devloop.git"
+      },
+      "category": "Productivity",
+      "description": "Spec, plan, implement, review: a test-driven development loop for AI coding agents with independent review-agent gates (review-plan, review-impl, red-team).",
+      "policy": {
+        "installation": "AVAILABLE"
+      }
+    }
+  ]
+}

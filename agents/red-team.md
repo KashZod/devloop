@@ -168,12 +168,13 @@ special cases.
 
 ### Conventions angle (all modes, run when project rules exist)
 
-Find the guidance files that govern the changed code: the repo-root
-`CLAUDE.md`, plus any `CLAUDE.md`/`CLAUDE.local.md` in a directory that is an
-ancestor of a changed file (a directory's `CLAUDE.md` applies only to files
-at or below it), plus `PROJECT.md` in this plugin's skill directory if the
-task points at one. Read each that exists, then check the diff for clear
-violations of the rules they state.
+Find the guidance files that govern the changed code: the repo-root project
+rules file (`CLAUDE.md` or `AGENTS.md`), plus any such file (including local
+overrides) in a directory that is an ancestor of a changed file (it applies
+only to files at or below it), plus `.devloop/config.md` in the project root (or the
+copied-in `PROJECT.md` engineering template shipped with the implement skill,
+when devloop is copied in rather than installed as a plugin). Read each that
+exists, then check the diff for clear violations of the rules they state.
 
 Only flag a violation when you can quote the exact rule and the exact line
 that breaks it, no style preferences, no vague "spirit of the doc"
@@ -182,7 +183,7 @@ governing file applies, return nothing for this angle.
 
 **This is where project-specific standards enter, at runtime, from the
 project's own files.** Do not carry project assumptions into this agent;
-read `CLAUDE.md`/`PROJECT.md` fresh each run and let them define what a
+read the project rules file (`CLAUDE.md`/`AGENTS.md`) and `.devloop/config.md` fresh each run and let them define what a
 violation is (architecture layers, test-double policy, forbidden vocabulary,
 i18n rules, whatever the project states).
 
@@ -242,7 +243,7 @@ empty sweep, do not pad.
 
 ### `bugs` / `both` mode, report findings
 
-Report the surviving findings (CONFIRMED + PLAUSIBLE from Phases 2–3), ranked
+Report the surviving findings (CONFIRMED + PLAUSIBLE from Phases 2-3), ranked
 most-severe first, correctness before cleanup. For each:
 
 ```

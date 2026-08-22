@@ -185,13 +185,36 @@ for field in name description author; do
     fi
 done
 
-# Check skills array
-skill_count="$(python3 -c "import json; d=json.load(open('.claude-plugin/plugin.json')); print(len(d.get('skills',[])))" 2>/dev/null || echo 0)"
-if [[ "$skill_count" -eq 3 ]]; then
-    pass "plugin.json has $skill_count skills"
+# Skills and agents are auto-discovered from skills/ and agents/. The
+# manifest must NOT enumerate them: the current Claude Code schema rejects
+# skills/agents as arrays of objects (`claude plugin validate` reports
+# "Invalid input"). Verify the directories instead, and guard against a
+# regression that re-adds the keys.
+for s in spec plan implement; do
+    if [[ -f "skills/$s/SKILL.md" ]]; then
+        pass "skills/$s/SKILL.md present (auto-discovered)"
+    else
+        fail "skills/$s/SKILL.md missing"
+    fi
+done
+if python3 -c "import json,sys; d=json.load(open('.claude-plugin/plugin.json')); sys.exit(1 if ('skills' in d or 'agents' in d) else 0)" 2>/dev/null; then
+    pass "plugin.json does not enumerate skills/agents (schema-valid auto-discovery)"
 else
-    fail "plugin.json has $skill_count skills (expected exactly 3: spec, plan, implement)"
+    fail "plugin.json must not enumerate skills/agents (current Claude Code schema rejects object arrays)"
 fi
+
+# Marketplace catalogs (both harnesses) exist, are valid JSON, and list devloop.
+# `plugin install` pulls from a marketplace, so a bare plugin.json is not
+# installable on its own.
+for mpfile in ".claude-plugin/marketplace.json" ".agents/plugins/marketplace.json"; do
+    if [[ ! -f "$mpfile" ]]; then
+        fail "$mpfile missing (needed for plugin install)"
+    elif python3 -c "import json,sys; d=json.load(open('$mpfile')); sys.exit(0 if any(p.get('name')=='devloop' for p in d.get('plugins',[])) else 1)" 2>/dev/null; then
+        pass "$mpfile is valid JSON and lists the devloop plugin"
+    else
+        fail "$mpfile must be valid JSON and list a plugin named devloop"
+    fi
+done
 
 # ─────────────────────────────────────────────
 section "5. Skill phases are sequential (spec 1-5, plan 1-5, implement 1-3)"
@@ -381,7 +404,6 @@ spec_sections=(
     "Architecture Overview"
     "Domain-Specific Concerns"
     "Quality Standards"
-    "Commit Conventions"
 )
 
 for section_name in "${spec_sections[@]}"; do
@@ -574,25 +596,66 @@ if ! $harness_leak; then
 fi
 
 # ─────────────────────────────────────────────
-section "17. No em dashes in published files"
+section "17. No em or en dashes in published files"
 # ─────────────────────────────────────────────
 
-# The repo uses standard punctuation, not em dashes. Scan every published
-# markdown file (core skill/agent prose plus the top-level docs). evals/
-# and docs/ are not part of the release, so they are out of scope.
+# The repo uses standard punctuation, not em (U+2014) or en (U+2013) dashes.
+# Scan every published markdown file (core skill/agent prose plus the
+# top-level docs). evals/ and docs/ are not part of the release, so they are
+# out of scope. (Arrows U+2192 are used deliberately and are not flagged.)
 em_dash_files=("${core_files[@]}" "README.md" "CHANGELOG.md" "PRIVACY.md")
 
 em_dash_found=false
 for file in "${em_dash_files[@]}"; do
     [[ -f "$file" ]] || continue
-    if grep -q "—" "$file" 2>/dev/null; then
-        fail "$file contains an em dash (use standard punctuation)"
+    if grep -qP "\x{2014}|\x{2013}" "$file" 2>/dev/null; then
+        fail "$file contains an em or en dash (use standard punctuation)"
         em_dash_found=true
     fi
 done
 if ! $em_dash_found; then
-    pass "No em dashes in published files"
+    pass "No em or en dashes in published files"
 fi
+
+# ─────────────────────────────────────────────
+section "18. Config discovery points at .devloop/"
+# ─────────────────────────────────────────────
+
+# The plugin-install-safe convention: skills and agents read project
+# config from a .devloop/ directory in the project root, not from a
+# PROJECT.md in the read-only plugin cache. Guard against reintroducing
+# the cache pointer, and require each skill to name the .devloop/ home.
+pointer_found=false
+for file in "${core_files[@]}"; do
+    if grep -q "plugin's skill directory" "$file" 2>/dev/null; then
+        fail "$file points config discovery at the plugin's skill directory (use .devloop/)"
+        pointer_found=true
+    fi
+done
+if ! $pointer_found; then
+    pass "No plugin-cache config pointer in core files"
+fi
+
+for skill_file in "$spec_skill" "$plan_skill" "$implement_skill"; do
+    label="$(basename "$(dirname "$skill_file")")"
+    if grep -q "\.devloop/" "$skill_file"; then
+        pass "$label SKILL.md references .devloop/"
+    else
+        fail "$label SKILL.md does not reference the .devloop/ config home"
+    fi
+done
+
+# The review agents discover project config too; each must name the
+# .devloop/ home so a future edit can't silently revert one to the
+# plugin-cache model.
+for agent in agents/review-plan.md agents/review-impl.md agents/red-team.md; do
+    basename="$(basename "$agent")"
+    if grep -q "\.devloop/" "$agent"; then
+        pass "$basename references .devloop/"
+    else
+        fail "$basename does not reference the .devloop/ config home"
+    fi
+done
 
 # ─────────────────────────────────────────────
 # Summary

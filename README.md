@@ -28,12 +28,10 @@ red-team       Independent agent hunts bugs + cleanups in the diff
                  via the review-plan agent in-session, then resumes
 ```
 
-Three commands map to three gates, one gate per command: `/spec` (WHAT,
-spec validation), `/plan` (HOW, plan review), `/implement` (BUILD,
-conformance + red-team review). The one exception is the convergence
-back-edge below, where `/implement` re-runs the plan-review gate
-in-session. The three review agents run in isolated context, they didn't
-write the plan or code, so they evaluate honestly.
+Three commands, three gates, one per command: `/spec` (WHAT), `/plan`
+(HOW), `/implement` (BUILD). The review agents run in a context that did
+not write the plan or code, so their verdict is independent, not the author
+grading itself.
 
 ## Why not just prompt the AI?
 
@@ -54,18 +52,14 @@ everything *around* the code:
 - **Prompts do not compose or persist.** They live in your head and drift
   from run to run and project to project.
 
-devloop exists to close exactly these gaps: it separates WHAT / HOW /
-BUILD into three gated steps, runs review in a context that did not write
-the code, persists a tracker so work survives resets, makes every gate an
+devloop closes these gaps: it separates WHAT / HOW / BUILD into three
+gated steps, runs review in a context that did not write the code,
+persists a tracker so work survives resets, makes every gate an
 evidence-backed hard-stop, and ships as a versioned artifact that behaves
-the same across projects and harnesses. The next section is how each piece
-pays off; [How the loop works](#how-the-loop-works) is the mechanics.
+the same across projects and harnesses.
 
-## Why This Workflow
+## What the review layer adds
 
-- **The reviewer didn't write the code.** Review agents spawn in a
-  fresh context, separate from the author, so author-evaluator bias is
-  cut by the setup, not just by asking the reviewer to be objective.
 - **Design bugs are caught before coding starts.** An 8-point plan
   review runs before any code is written. Fixing a wrong abstraction
   in a plan costs minutes; in code, hours.
@@ -83,8 +77,6 @@ pays off; [How the loop works](#how-the-loop-works) is the mechanics.
   under-report), then runs a verify pass that keeps only
   CONFIRMED/PLAUSIBLE findings and drops the rest, trading a noisier
   find phase for higher recall without shipping the false positives.
-- **Work survives context resets.** A JSON tracker tells a new session
-  exactly where to pick up.
 
 ## How the loop works
 
@@ -106,8 +98,8 @@ agent would tie the loop to a single harness.
 
 The gates depend on spawning those agents. On a harness with no subagent
 capability at all, each gate degrades to an in-context self-check and
-loses the author-evaluator isolation that is the point, the skills say so
-at each gate rather than pretending the guarantee still holds.
+loses the author-evaluator isolation; the skills say so at each gate
+rather than pretending the guarantee still holds.
 
 ## What's Included
 
@@ -134,9 +126,10 @@ in a fresh context and runs a two-family review:
 - **Correctness** (5 angles): line-by-line diff scan, removed-behavior
   auditor, cross-file caller/callee tracer, language-pitfall
   specialist, wrapper/proxy correctness.
-- **Cleanup** (4 angles): reuse, simplification, efficiency, altitude
- , plus a conventions angle that reads the project's own `CLAUDE.md` /
-  `PROJECT.md` at runtime and only flags rules it can quote.
+- **Cleanup** (4 angles): reuse, simplification, efficiency, altitude,
+  plus a conventions angle that reads the project's own rules file
+  (`CLAUDE.md`/`AGENTS.md`) and `.devloop/config.md` at runtime and only
+  flags rules it can quote.
 
 It then **verifies** each candidate (recall-biased: PLAUSIBLE by
 default, REFUTED only when the code proves it) and **sweeps** once more
@@ -155,46 +148,70 @@ Use the red-team agent in mode: both to review the changed files
 Use the red-team agent in mode: cleanup to tidy the changed files
 ```
 
-`red-team` reads no project assumptions of its own, it discovers
-standards from the project's `CLAUDE.md` / `PROJECT.md` each run, so
-the same agent works across projects.
-
 ## Install
 
-**Claude Code.** Copy `skills/` and `agents/` into your project's
-`.claude/` directory, or install as a plugin (manifest:
-`.claude-plugin/plugin.json`, which registers the three skills and three
-agents).
+**Claude Code.** Install from the marketplace:
 
-**Codex.** Install as a plugin (manifest: `.codex-plugin/plugin.json`).
-The same three skills power both harnesses; Codex discovers them from the
-`skills/` directory the manifest points at. Codex's plugin manifest
-registers skills, not agents, so the three review agents under `agents/`
-ride along as prompt files: the skills spawn them as subagents where the
-harness supports delegation, and otherwise degrade to the in-context
-self-check the gates already document.
+```
+/plugin marketplace add KashZod/devloop
+/plugin install devloop@kashzod
+```
 
-Then give the loop project context. There are **two** `PROJECT.md`
-templates:
+Claude Code auto-discovers the three skills (`skills/`) and three agents
+(`agents/`); the manifest is `.claude-plugin/plugin.json`. To vendor the
+plugin instead, copy `skills/` and `agents/` into your project's `.claude/`
+directory.
 
-- `skills/implement/PROJECT.md`, the engineering config, build/test/lint
-  commands, architecture rules, standards, and blindspots. Read by
-  `/plan`, `/implement`, `review-plan`, `review-impl`, and `red-team`.
-  `/plan` and `/implement` share this one config; there is no separate
-  plan config.
-- `skills/spec/PROJECT.md`, domain context, architecture overview, and
-  domain-specific concerns. Read by `/spec`.
+**Codex.** Install from the same marketplace:
 
-Fill in both (each is a template of `YOUR_*_HERE` placeholders). The
-fastest start is to copy the closest example from
+```
+codex plugin marketplace add KashZod/devloop
+codex plugin add devloop@kashzod
+```
+
+Codex reads `.codex-plugin/plugin.json` and its own catalog
+(`.agents/plugins/marketplace.json`). The same three skills power both
+harnesses; Codex registers skills, not agents, so the three review agents
+under `agents/` ride along as prompt files: the skills spawn them as
+subagents where the harness supports delegation, and otherwise degrade to
+the in-context self-check the gates already document.
+
+Then give the loop project context in a `.devloop/` directory at your
+project root:
+
+```
+.devloop/
+  config.md    # engineering: build/test/lint, architecture, standards,
+               #   blindspots, commit conventions, and the spec/tracker
+               #   directory settings. Read by /plan, /implement,
+               #   review-plan, review-impl, red-team, and /spec (which
+               #   reads the spec-directory setting from here).
+  domain.md    # domain context, architecture overview, domain-specific
+               #   concerns. Read by /spec.
+  trackers/    # impl-tracker-<feature>.json, written by /plan
+```
+
+Each skill and agent resolves its config in this order: `.devloop/<file>`
+in your project first, then the copied-in `PROJECT.md` template, then
+generic mode if neither exists (the loop still runs, with less
+project-specific insight). The `PROJECT.md` template is the fallback only
+when devloop is copied into your project rather than installed as a plugin;
+the engineering config ships as the implement skill's `PROJECT.md`, the
+domain config as the spec skill's. This is why a plugin install works: the
+skills live in a read-only cache, but they read `.devloop/` from your
+project, not the cache.
+
+The fastest start is to copy the closest example to `.devloop/config.md`
+from
 [`skills/implement/project-configs/`](skills/implement/project-configs/)
-and [`skills/spec/project-configs/`](skills/spec/project-configs/),
-ready-made configs for Node/TypeScript, Python, Rust, and
-Android/Kotlin. Both skills run fine with no `PROJECT.md` (generic
-defaults apply), just with less project-specific insight.
+and to `.devloop/domain.md` from
+[`skills/spec/project-configs/`](skills/spec/project-configs/),
+ready-made configs for Node/TypeScript, Python, Rust, and Android/Kotlin.
+Each is a template of `YOUR_*_HERE` placeholders; fill them in.
 
-**Installing as a plugin?** Your filled-in `PROJECT.md` belongs in your
-own project, not in the read-only plugin directory.
+**Commit `config.md` and `domain.md`** so the whole team shares one
+context. `.devloop/trackers/` holds in-progress work; commit it for
+cross-machine resumability or gitignore it, your call.
 
 ## Optional: proof that the check actually ran (rung)
 
@@ -206,10 +223,9 @@ that last gap: it records whether a check drove the real surface (not just
 an isolated test or a reading of the code) and whether an independent
 context ran it, then gates on that record deterministically.
 
-It maps cleanly onto devloop. rung's author-vs-independent context is the
-same author-evaluator split the review agents enforce, and its rung-level
-(drove the real surface vs isolated test) hardens the TDD green step into
-a re-checkable artifact instead of a self-report.
+rung's author-vs-independent split is the same one devloop's review agents
+enforce, and its check-level record hardens the TDD green step into a
+re-checkable artifact instead of a self-report.
 
 This is optional and unbundled by design. devloop ships only markdown and
 a bash validator, with no runtime dependencies; rung is a separate
@@ -217,6 +233,18 @@ a bash validator, with no runtime dependencies; rung is a separate
 regression run in `rung run --rung 1` and gate CI on `rung gate`
 (exit `0` is the only pass). Keep it out of the core loop unless you want
 CI-enforceable proof that the checks were real.
+
+## Related Work
+
+[GitHub Spec Kit](https://github.com/github/spec-kit) is a spec-driven
+development toolkit in the same space, with a comparable specify -> plan ->
+tasks -> implement flow across several coding agents. devloop's `/spec ->
+/plan -> /implement` shape covers similar ground; where it differs is the
+review layer: three independent agents (`review-plan`, `review-impl`,
+`red-team`) run in author-isolated context as hard gates between the
+phases, and the loop is TDD-first with a JSON tracker that survives context
+resets. For the broader spec-driven tooling ecosystem, start with Spec Kit;
+for the gated, review-heavy loop, devloop is narrower by design.
 
 ## License
 

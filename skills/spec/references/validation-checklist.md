@@ -171,7 +171,7 @@ At minimum: empty state, error state, boundary values.
 - Cross-reference with taxonomy categories 5 (Error Handling)
   and 6 (Edge Cases & Boundaries)
 - Each P1 story has at least one edge case
-- Domain-specific concerns from PROJECT.md are addressed
+- Domain-specific concerns from .devloop/domain.md are addressed
 - Category tags `[Category N]` are present for traceability
 
 **Common misses:**
@@ -206,10 +206,10 @@ No unresolved `[NEEDS CLARIFICATION]` markers remain.
 After the 8 generic points above, check the spec against
 project-specific criteria:
 
-1. Load `PROJECT.md` "Domain-Specific Concerns" section
+1. Load `.devloop/domain.md` "Domain-Specific Concerns" section
 2. Verify each concern is addressed (in Edge Cases, Acceptance
    Criteria, or explicitly in Out of Scope)
-3. Load `PROJECT.md` "Quality Standards" section
+3. Load `.devloop/domain.md` "Quality Standards" section
 4. Verify each standard is met
 
 Document project-specific failures the same way as generic

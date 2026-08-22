@@ -1,5 +1,76 @@
 # Changelog
 
+## 3.1.0
+
+A single project-local home for devloop's per-project files: `.devloop/`.
+This fixes config discovery under a plugin install (where the skills live
+in a read-only shared cache and a `PROJECT.md` beside `SKILL.md` never
+resolves in the user's project) and gives trackers a stable home outside
+`docs/`.
+
+### Added
+- **`.devloop/` convention**: skills and agents read project config from
+  `.devloop/` in the project root:
+  - `config.md`, engineering config (build/test/lint commands, architecture
+    rules, standards, blindspots, commit conventions, and the spec/tracker
+    directory settings), read by `/plan`, `/implement`, `review-plan`,
+    `review-impl`, `red-team`, and `/spec` (for the spec-directory setting).
+  - `domain.md`, pure domain knowledge (domain context, architecture
+    overview, domain-specific concerns, existing patterns, quality
+    standards), read by `/spec`.
+  - `trackers/`, home for `impl-tracker-<feature>.json`, written by `/plan`.
+- **Two-tier discovery**: each skill and agent resolves config as
+  `.devloop/<file>` in the project, then the copied-in `PROJECT.md` template
+  that ships with the skills, then generic mode. This is why a plugin install
+  now works: the read-only cache holds the skills, but they read `.devloop/`
+  from the project.
+- **`validate.sh` section 18**: fails if a core file reintroduces the
+  plugin-cache config pointer ("plugin's skill directory") and requires each
+  skill and review agent to name the `.devloop/` home.
+- **`validate.sh` section 17** now also rejects en dashes (not just em
+  dashes), closing a gap in the standard-punctuation guard.
+- **Plugin marketplaces**: `.claude-plugin/marketplace.json` (Claude Code)
+  and `.agents/plugins/marketplace.json` (Codex, its native catalog
+  location) so devloop installs via
+  `/plugin marketplace add KashZod/devloop` then
+  `/plugin install devloop@kashzod`, and the `codex plugin marketplace add`
+  / `codex plugin add` equivalents.
+
+### Changed
+- **Config ownership**: `config.md` owns the operational paths (spec
+  directory, tracker directory) alongside the engineering settings;
+  `domain.md` is now purely domain knowledge. Commit conventions live only
+  in `config.md` (read by the skills that commit). `/spec` reads its output
+  path from `config.md` and its domain context from `domain.md`.
+- **Tracker home**: `/plan` writes trackers to `.devloop/trackers/` by
+  default (was `docs/`); `/implement`, `review-plan`, and `review-impl`
+  look there.
+- **Example configs** now label their destination: the
+  `implement/project-configs/` examples are headed as `.devloop/config.md`
+  examples, the `spec/project-configs/` examples as `.devloop/domain.md`
+  examples (the directory names are unchanged).
+
+### Migration
+- **Move in-flight trackers.** Trackers previously written under `docs/`
+  now live in `.devloop/trackers/`, and this release drops the `docs/`
+  read-fallback. Move any existing `docs/impl-tracker-*.json` into
+  `.devloop/trackers/`, or pass an explicit tracker path when invoking
+  `/implement` or the review agents.
+- **Split an old `PROJECT.md`.** If you relied on a copied-in `PROJECT.md`,
+  split it into `.devloop/config.md` (engineering settings and paths) and
+  `.devloop/domain.md` (domain knowledge). The copied-in `PROJECT.md`
+  templates still work as the fallback, but `.devloop/` takes precedence and
+  is what a plugin install reads.
+
+### Fixed
+- **Valid Claude Code manifest.** `.claude-plugin/plugin.json` no longer
+  enumerates `skills`/`agents` as arrays of objects, a shape the current
+  schema rejects (`claude plugin validate` reported `skills: Invalid input`
+  / `agents: Invalid input`). Claude Code auto-discovers `skills/` and
+  `agents/`, so the keys are dropped; the manifest now passes
+  `claude plugin validate --strict`. The Claude manifest also gains
+  `repository` and `license`, matching the Codex manifest.
+
 ## 3.0.0
 
 Three-command split, a harness-agnostic rewrite, and a de-overlapped

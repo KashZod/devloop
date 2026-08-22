@@ -1,4 +1,4 @@
-# PROJECT.md - TypeScript / Node.js
+# .devloop/domain.md example - TypeScript / Node.js
 
 Example configuration for a TypeScript backend service using
 Node.js, with Express or Fastify.
@@ -56,21 +56,3 @@ Routes -> Controllers -> Services -> Repositories -> PostgreSQL
 - [ ] Error scenarios specify HTTP status codes
 - [ ] Features touching auth have permission acceptance criteria
 - [ ] Performance targets include P95 latency for critical endpoints
-
----
-
-## Output Conventions
-
-```text
-docs/specs/
-```
-
----
-
-## Commit Conventions
-
-```text
-# Message format: conventional commits with scope
-fix(auth): handle expired refresh tokens
-feat(api): add pagination to /users endpoint
-```
