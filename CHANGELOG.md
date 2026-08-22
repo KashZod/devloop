@@ -54,6 +54,22 @@ resolves in the user's project) and gives trackers a stable home outside
   `skills/implement/project-configs/` (engineering) layout, and
   `validate.sh` now checks the examples in a single section (the former
   duplicate example-config check is removed).
+- **`/implement` Phase 3 sizes the `red-team` half by diff size**, the
+  same way `/plan` sizes work (its Trivial / Small / Medium+ / Large
+  table). A single-file change (or a trivial one with no new logic) runs
+  one `red-team` in `mode: both`, unchanged from before. A broader,
+  multi-file or cross-cutting diff (`/plan` Medium+ and Large) splits the
+  `red-team` half into parallel `mode: bugs` and `mode: cleanup` runs so
+  neither family crowds the other out. `review-impl` runs alongside in
+  every case. Because `red-team` in `mode: cleanup` can apply fixes, the
+  split invokes the `cleanup` run report-only, so all three concurrent
+  agents only report and the parallel gate stays read-only. No new
+  `red-team` mode was added; report-only is an invocation instruction
+  inside `cleanup` mode.
+- **`validate.sh` section 18** asserts the Phase 3 spawn stays
+  size-adaptive (it names the `mode: both`, `mode: bugs`, `mode: cleanup`,
+  and `report-only` markers), so a future edit can't silently revert to
+  the fixed single-agent gate.
 
 ### Migration
 - **Move in-flight trackers.** Trackers previously written under `docs/`

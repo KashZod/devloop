@@ -254,10 +254,11 @@ are available:
 `complete` (see Phase 1.3), is a **blocked feature**: do not treat it as
 complete or trigger this gate, stop and surface it to the user.
 
-**GATE: All chunks complete triggers parallel review.** Spawn two
-independent agents in a single message so they run concurrently. Both
-are read-only (`red-team` in `both` mode reports; it does not apply),
-so concurrent runs are safe:
+**GATE: All chunks complete triggers parallel review.** Spawn the review
+agents in a single message so they run concurrently. They are read-only
+(`review-impl` and `red-team` in `bugs`/`both`, plus `cleanup` when
+invoked report-only, all report; none apply), so concurrent runs are
+safe:
 
 1. **`review-impl` agent**, the conformance gate. Verifies plan match,
    acceptance criteria met with quoted test evidence, test quality, and
@@ -265,16 +266,39 @@ so concurrent runs are safe:
    what was planned, and does the suite prove it?" It does **not** hunt
    correctness bugs, robustness gaps, standards violations, or cleanup,
    that is `red-team`'s territory, so the two no longer overlap.
-2. **`red-team` agent** (`mode: both`), adversarial diff reviewer.
-   Hunts correctness bugs (5 angles) and flags cleanup (reuse,
-   simplification, efficiency, altitude), verifies each finding
-   (recall-biased), then sweeps for gaps. Answers "what is wrong or
-   wasteful in this diff, regardless of the plan?"
+2. **`red-team` agent**, adversarial diff reviewer. Hunts correctness
+   bugs (5 angles) and flags cleanup (reuse, simplification, efficiency,
+   altitude), verifies each finding (recall-biased), then sweeps for gaps.
+   Answers "what is wrong or wasteful in this diff, regardless of the
+   plan?"
+
+**Size the red-team half** the same way `/plan` sizes work (its Trivial /
+Small / Medium+ / Large table), by the set of files touched across the
+completed chunks:
+
+- **Small diff** (a single-file change, or a trivial one with no new
+  logic, matching `/plan`'s Small row): one `red-team` in `mode: both`.
+- **Large diff** (broader: multiple files or cross-cutting, i.e. `/plan`
+  Medium+ and Large): split the red-team half into `mode: bugs` and
+  `mode: cleanup` run in parallel, so neither family crowds the other
+  out. Invoke the `cleanup` agent **report-only** (it can otherwise apply
+  fixes), which keeps the whole gate read-only.
+
+Small diff (default):
 
 ```
 In parallel:
 - Use the review-impl agent to review implementation against [path to tracker]
 - Use the red-team agent in mode: both to review the changed files (pass the tracker path)
+```
+
+Large diff (split the red-team half):
+
+```
+In parallel:
+- Use the review-impl agent to review implementation against [path to tracker]
+- Use the red-team agent in mode: bugs to review the changed files (pass the tracker path)
+- Use the red-team agent in mode: cleanup to review the changed files, report only (pass the tracker path)
 ```
 
 Complementary by design: `review-impl` checks conformance to intent

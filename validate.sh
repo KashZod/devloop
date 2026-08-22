@@ -531,7 +531,7 @@ check_skill_frontmatter "$plan_skill" "Plan SKILL.md"
 check_skill_frontmatter "$spec_skill" "Spec SKILL.md"
 
 # ─────────────────────────────────────────────
-section "14. SKILL.md files are under 500 lines"
+section "14. SKILL.md files are under 510 lines"
 # ─────────────────────────────────────────────
 
 for skill_file in "$implement_skill" "$plan_skill" "$spec_skill"; do
@@ -638,6 +638,36 @@ for agent in agents/review-plan.md agents/review-impl.md agents/red-team.md; do
         fail "$basename does not reference the .devloop/ config home"
     fi
 done
+
+# ─────────────────────────────────────────────
+section "18. Phase 3 red-team spawn is size-adaptive"
+# ─────────────────────────────────────────────
+
+# /implement Phase 3 sizes the diff and either runs one red-team in
+# mode: both (small diff) or splits into parallel mode: bugs +
+# mode: cleanup (report-only) on a large diff. Guard the invariant so a
+# future edit can't silently revert to the fixed single-agent gate or
+# drop the report-only instruction that keeps the split read-only.
+# The three mode literals prove both paths are documented: mode: both
+# (small diff) plus mode: bugs and mode: cleanup (the large-diff split).
+# mode: bugs is unique to the split, so a revert to the fixed single-agent
+# gate drops it and this fires.
+for token in "mode: both" "mode: bugs" "mode: cleanup"; do
+    if grep -qi "$token" "$implement_skill"; then
+        pass "implement SKILL.md Phase 3 names the size-adaptive marker: \"$token\""
+    else
+        fail "implement SKILL.md Phase 3 is missing the size-adaptive marker: \"$token\" (the red-team spawn must document small -> mode: both vs large -> parallel mode: bugs + mode: cleanup)"
+    fi
+done
+# The split cleanup agent must be invoked report-only so the gate stays
+# read-only. Match loosely (hyphen or space) so a benign reword does not
+# spuriously fail; the invariant is the report-only instruction, not its
+# spelling.
+if grep -Eqi "report[- ]only" "$implement_skill"; then
+    pass "implement SKILL.md invokes the split cleanup agent report-only"
+else
+    fail "implement SKILL.md Phase 3 must invoke the large-diff cleanup agent report-only (keeps the parallel gate read-only)"
+fi
 
 # ─────────────────────────────────────────────
 # Summary

@@ -1,7 +1,8 @@
 # JSON Tracker Schema
 
 The tracker file is the single source of truth for feature implementation progress.
-It is a local working file - not committed to version control.
+It is a working file; commit it for cross-machine resumability or
+gitignore it, your call.
 
 Write it **atomically** (write a temp file, then rename over the old one) so a
 crash mid-write cannot corrupt the single source of truth.

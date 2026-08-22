@@ -71,7 +71,9 @@ the same across projects and harnesses.
   overlap: `review-impl` defers correctness, robustness, standards, and
   cleanup to `red-team`. A bug that faithfully implements a flawed plan
   is caught only by `red-team`; a correct-but-off-spec change only by
-  `review-impl`.
+  `review-impl`. On a large, multi-file diff the `red-team` half fans
+  into a focused bugs pass and a focused cleanup pass in parallel; on a
+  small diff it stays a single `both` pass (see below).
 - **The bug hunter is recall-biased, then verified.** `red-team`
   surfaces candidate defects freely (conservative reviewers
   under-report), then runs a verify pass that keeps only
@@ -140,13 +142,22 @@ It takes a mode:
 | Mode | What it does |
 |---|---|
 | `bugs` | correctness angles only, then verify + sweep |
-| `cleanup` | quality angles only, the tidy pass; can apply fixes |
+| `cleanup` | quality angles only, the tidy pass; can apply fixes (report-only when run as a gate) |
 | `both` *(default)* | everything |
 
 ```
 Use the red-team agent in mode: both to review the changed files
 Use the red-team agent in mode: cleanup to tidy the changed files
 ```
+
+**Size-adaptive at the `/implement` gate.** Phase 3 sizes the diff the
+same way `/plan` sizes work: a single-file change (or a trivial one with
+no new logic) runs one `red-team` in `mode: both`; a multi-file or
+cross-cutting diff splits
+the `red-team` half into parallel `mode: bugs` and `mode: cleanup` runs so
+neither family crowds the other out. At the gate the `cleanup` run is
+invoked report-only, so the whole review stays read-only and safe to run
+alongside `review-impl`.
 
 ## Install
 
